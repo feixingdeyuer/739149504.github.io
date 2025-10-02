@@ -6,6 +6,8 @@
     <title>汝城县第三中学艺术节管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入SheetJS库用于处理Excel文件 -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
     <!-- 配置Tailwind自定义颜色和字体 -->
     <script>
@@ -13,11 +15,11 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#1E40AF', // 深蓝色作为主色调，代表专业和信任
-                        secondary: '#F97316', // 橙色作为辅助色，代表活力和创意
-                        neutral: '#64748B', // 中性色
-                        light: '#F8FAFC', // 浅色背景
-                        dark: '#0F172A' // 深色文本
+                        primary: '#1E40AF',
+                        secondary: '#F97316',
+                        neutral: '#64748B',
+                        light: '#F8FAFC',
+                        dark: '#0F172A'
                     },
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -90,7 +92,7 @@
                             </div>
                             <h3 class="text-xl font-bold">学生报名入口</h3>
                         </div>
-                        <p class="text-neutral mb-6">参加艺术节各项比赛和活动的同学，请点击下方按钮进入报名系统，填写相关信息完成报名。</p>
+                        <p class="text-neutral mb-6">参加艺术节各项比赛和活动的同学，请点击下方按钮进入报名系统，填写相关信息完成报名。每个项目分为专业组和非专业组。</p>
                         <div class="flex flex-wrap gap-4 mb-4">
                             <span class="bg-gray-100 px-3 py-1 rounded-full text-sm">独唱</span>
                             <span class="bg-gray-100 px-3 py-1 rounded-full text-sm">独奏</span>
@@ -113,7 +115,7 @@
                             </div>
                             <h3 class="text-xl font-bold">管理员登录</h3>
                         </div>
-                        <p class="text-neutral mb-6">管理员请通过下方入口登录系统，进行报名信息管理、首页内容修改和管理员权限管理等操作。</p>
+                        <p class="text-neutral mb-6">管理员请通过下方入口登录系统，进行报名信息管理、首页内容修改和管理员权限管理等操作。支持批量导入报名信息。</p>
                         <form id="quick-login-form" class="space-y-4">
                             <div>
                                 <label for="quick-phone" class="block text-sm font-medium text-gray-700 mb-1">手机号码</label>
@@ -205,20 +207,32 @@
                                     placeholder="请输入手机号码">
                             </div>
                             
-                            <div>
-                                <label for="event" class="block text-sm font-medium text-gray-700 mb-1">报名项目 <span class="text-red-500">*</span></label>
-                                <select id="event" name="event" required
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
-                                    <option value="">请选择报名项目</option>
-                                    <option value="独唱">独唱</option>
-                                    <option value="独奏">独奏</option>
-                                    <option value="独舞">独舞</option>
-                                    <option value="书法大赛">书法大赛</option>
-                                    <option value="绘画大赛">绘画大赛</option>
-                                    <option value="主持人大赛">主持人大赛</option>
-                                    <option value="综合大型节目">综合大型节目</option>
-                                    <option value="班级合唱比赛">班级合唱比赛</option>
-                                </select>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="event" class="block text-sm font-medium text-gray-700 mb-1">报名项目 <span class="text-red-500">*</span></label>
+                                    <select id="event" name="event" required
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                                        <option value="">请选择报名项目</option>
+                                        <option value="独唱">独唱</option>
+                                        <option value="独奏">独奏</option>
+                                        <option value="独舞">独舞</option>
+                                        <option value="书法大赛">书法大赛</option>
+                                        <option value="绘画大赛">绘画大赛</option>
+                                        <option value="主持人大赛">主持人大赛</option>
+                                        <option value="综合大型节目">综合大型节目</option>
+                                        <option value="班级合唱比赛">班级合唱比赛</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="group" class="block text-sm font-medium text-gray-700 mb-1">组别 <span class="text-red-500">*</span></label>
+                                    <select id="group" name="group" required
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                                        <option value="">请选择组别</option>
+                                        <option value="专业组">专业组</option>
+                                        <option value="非专业组">非专业组</option>
+                                    </select>
+                                </div>
                             </div>
                             
                             <div>
@@ -326,11 +340,57 @@
                                                 class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
                                             <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                                         </div>
+                                        <button id="batch-delete-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-custom flex items-center" disabled>
+                                            <i class="fa fa-trash mr-2"></i> 批量删除
+                                            <span id="selected-count" class="ml-1 bg-white text-red-600 text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                                        </button>
                                         <button id="add-registration-btn" class="bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg transition-custom flex items-center">
                                             <i class="fa fa-plus mr-2"></i> 添加报名
                                         </button>
+                                        <button id="batch-import-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-custom flex items-center">
+                                            <i class="fa fa-upload mr-2"></i> 批量导入
+                                        </button>
                                         <button id="export-csv-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-custom flex items-center">
-                                            <i class="fa fa-download mr-2"></i> 导出CSV（含筛选结果）
+                                            <i class="fa fa-download mr-2"></i> 导出Excel
+                                            <span id="export-count" class="ml-1 bg-white text-green-600 text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 筛选条件区域 -->
+                                <div class="flex flex-wrap gap-4 mb-6 pb-4 border-b border-gray-200">
+                                    <div class="w-full sm:w-auto">
+                                        <label for="filter-class" class="block text-sm font-medium text-gray-700 mb-1">班级</label>
+                                        <select id="filter-class" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                                            <option value="">全部班级</option>
+                                            <!-- 班级选项将通过JavaScript动态生成 -->
+                                        </select>
+                                    </div>
+                                    <div class="w-full sm:w-auto">
+                                        <label for="filter-event" class="block text-sm font-medium text-gray-700 mb-1">报名项目</label>
+                                        <select id="filter-event" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                                            <option value="">全部项目</option>
+                                            <option value="独唱">独唱</option>
+                                            <option value="独奏">独奏</option>
+                                            <option value="独舞">独舞</option>
+                                            <option value="书法大赛">书法大赛</option>
+                                            <option value="绘画大赛">绘画大赛</option>
+                                            <option value="主持人大赛">主持人大赛</option>
+                                            <option value="综合大型节目">综合大型节目</option>
+                                            <option value="班级合唱比赛">班级合唱比赛</option>
+                                        </select>
+                                    </div>
+                                    <div class="w-full sm:w-auto">
+                                        <label for="filter-group" class="block text-sm font-medium text-gray-700 mb-1">组别</label>
+                                        <select id="filter-group" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                                            <option value="">全部组别</option>
+                                            <option value="专业组">专业组</option>
+                                            <option value="非专业组">非专业组</option>
+                                        </select>
+                                    </div>
+                                    <div class="w-full sm:w-auto self-end">
+                                        <button id="reset-filter" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-custom">
+                                            <i class="fa fa-refresh mr-1"></i> 重置筛选
                                         </button>
                                     </div>
                                 </div>
@@ -339,11 +399,15 @@
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
                                             <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    <input type="checkbox" id="select-all" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                                </th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">班级</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">姓名</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">联系电话</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">报名项目</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">组别</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">报名时间</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                                             </tr>
@@ -357,6 +421,14 @@
                                 <div id="no-registration-data" class="py-12 text-center hidden">
                                     <i class="fa fa-folder-open-o text-4xl text-gray-300 mb-3"></i>
                                     <p class="text-gray-500">暂无报名数据</p>
+                                </div>
+                                
+                                <div id="no-filter-result" class="py-12 text-center hidden">
+                                    <i class="fa fa-search text-4xl text-gray-300 mb-3"></i>
+                                    <p class="text-gray-500">没有符合筛选条件的记录</p>
+                                    <button id="reset-filter-btn" class="mt-2 text-primary hover:text-primary/80 transition-custom">
+                                        重置筛选条件
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -481,19 +553,30 @@
                         placeholder="请输入手机号码">
                 </div>
                 
-                <div>
-                    <label for="edit-event" class="block text-sm font-medium text-gray-700 mb-1">报名项目 <span class="text-red-500">*</span></label>
-                    <select id="edit-event" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
-                        <option value="独唱">独唱</option>
-                        <option value="独奏">独奏</option>
-                        <option value="独舞">独舞</option>
-                        <option value="书法大赛">书法大赛</option>
-                        <option value="绘画大赛">绘画大赛</option>
-                        <option value="主持人大赛">主持人大赛</option>
-                        <option value="综合大型节目">综合大型节目</option>
-                        <option value="班级合唱比赛">班级合唱比赛</option>
-                    </select>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="edit-event" class="block text-sm font-medium text-gray-700 mb-1">报名项目 <span class="text-red-500">*</span></label>
+                        <select id="edit-event" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                            <option value="独唱">独唱</option>
+                            <option value="独奏">独奏</option>
+                            <option value="独舞">独舞</option>
+                            <option value="书法大赛">书法大赛</option>
+                            <option value="绘画大赛">绘画大赛</option>
+                            <option value="主持人大赛">主持人大赛</option>
+                            <option value="综合大型节目">综合大型节目</option>
+                            <option value="班级合唱比赛">班级合唱比赛</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="edit-group" class="block text-sm font-medium text-gray-700 mb-1">组别 <span class="text-red-500">*</span></label>
+                        <select id="edit-group" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                            <option value="专业组">专业组</option>
+                            <option value="非专业组">非专业组</option>
+                        </select>
+                    </div>
                 </div>
                 
                 <div>
@@ -512,6 +595,99 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- 模态框：批量导入 -->
+    <div id="batch-import-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">批量导入报名信息</h3>
+                <button id="close-batch-import-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <p class="text-sm text-gray-600 mb-3">
+                        请上传Excel格式文件（.xls或.xlsx）进行批量导入，文件应包含以下列（顺序不限）：
+                        <span class="block mt-2 text-xs text-gray-500">班级, 姓名, 联系电话, 报名项目, 组别(专业组/非专业组), 作品/节目简介(可选)</span>
+                    </p>
+                    
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-custom">
+                        <input type="file" id="import-file" accept=".xls,.xlsx" class="hidden">
+                        <label for="import-file" class="cursor-pointer">
+                            <i class="fa fa-cloud-upload text-3xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-600">点击或拖拽Excel文件到此处</p>
+                            <p class="text-xs text-gray-500 mt-1">支持的格式: .xls, .xlsx</p>
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="import-preview" class="hidden">
+                    <h4 class="font-medium text-gray-800 mb-2">预览 (前5条)</h4>
+                    <div class="overflow-x-auto max-h-40 border border-gray-200 rounded-lg">
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr id="import-preview-header">
+                                    <!-- 预览表头将动态生成 -->
+                                </tr>
+                            </thead>
+                            <tbody id="import-preview-body">
+                                <!-- 预览内容将动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="pt-2 flex justify-end space-x-3">
+                    <button type="button" id="cancel-import" class="px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-custom">
+                        取消
+                    </button>
+                    <button type="button" id="confirm-import" class="px-5 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
+                        确认导入
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：导入结果 -->
+    <div id="import-result-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full">
+            <div class="text-center mb-4">
+                <div id="result-icon" class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4"></div>
+                <h3 class="text-xl font-bold" id="result-title">导入完成</h3>
+            </div>
+            
+            <div class="space-y-3 mb-6">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">总记录数:</span>
+                    <span id="total-records" class="font-medium">0</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">成功导入:</span>
+                    <span id="success-records" class="font-medium text-green-600">0</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">导入失败:</span>
+                    <span id="failed-records" class="font-medium text-red-600">0</span>
+                </div>
+            </div>
+            
+            <div id="error-details" class="hidden mb-6 text-sm text-red-600 bg-red-50 p-3 rounded-lg max-h-40 overflow-y-auto">
+                <h4 class="font-medium mb-2">错误详情:</h4>
+                <ul id="error-list" class="list-disc pl-5 space-y-1">
+                    <!-- 错误详情将动态生成 -->
+                </ul>
+            </div>
+            
+            <div class="flex justify-center">
+                <button id="close-result-modal" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
+                    确定
+                </button>
+            </div>
         </div>
     </div>
 
@@ -731,10 +907,11 @@
                 const name = document.getElementById('name').value.trim();
                 const phone = document.getElementById('phone').value.trim();
                 const event = document.getElementById('event').value;
+                const group = document.getElementById('group').value;
                 const description = document.getElementById('description').value.trim();
                 
                 // 简单验证
-                if (!className || !name || !phone || !event) {
+                if (!className || !name || !phone || !event || !group) {
                     showToast('请填写所有必填字段', 'error');
                     return;
                 }
@@ -755,6 +932,7 @@
                     name,
                     phone,
                     event,
+                    group,
                     description,
                     timestamp: new Date().toISOString()
                 };
@@ -874,6 +1052,10 @@
                     adminManagementBtn.style.display = 'flex';
                 }
                 
+                // 初始化筛选和批量删除功能
+                setupFilters();
+                setupBatchDelete();
+                
             } catch (error) {
                 console.error('加载管理员页面数据错误:', error);
                 showToast('加载数据失败，请重新登录', 'error');
@@ -923,36 +1105,135 @@
             });
         }
         
-        // 加载报名信息数据
-        function loadRegistrationData() {
+        // 设置筛选功能
+        function setupFilters() {
+            // 初始化班级筛选下拉框
+            populateClassFilter();
+            
+            // 筛选条件变化事件
+            document.getElementById('filter-class').addEventListener('change', applyFilters);
+            document.getElementById('filter-event').addEventListener('change', applyFilters);
+            document.getElementById('filter-group').addEventListener('change', applyFilters);
+            document.getElementById('search-registration').addEventListener('input', applyFilters);
+            
+            // 重置筛选按钮
+            document.getElementById('reset-filter').addEventListener('click', resetFilters);
+            document.getElementById('reset-filter-btn').addEventListener('click', resetFilters);
+        }
+        
+        // 填充班级筛选下拉框
+        function populateClassFilter() {
             const registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
+            const classFilter = document.getElementById('filter-class');
+            
+            // 获取所有不重复的班级
+            const classes = [...new Set(registrations.map(reg => reg.className).filter(Boolean))];
+            
+            // 清空现有选项（保留"全部班级"）
+            while (classFilter.options.length > 1) {
+                classFilter.remove(1);
+            }
+            
+            // 添加班级选项
+            classes.forEach(className => {
+                const option = document.createElement('option');
+                option.value = className;
+                option.textContent = className;
+                classFilter.appendChild(option);
+            });
+        }
+        
+        // 应用筛选条件
+        function applyFilters() {
+            const registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
+            const classFilter = document.getElementById('filter-class').value;
+            const eventFilter = document.getElementById('filter-event').value;
+            const groupFilter = document.getElementById('filter-group').value;
+            const searchTerm = document.getElementById('search-registration').value.toLowerCase().trim();
+            
+            // 应用筛选
+            const filteredRegistrations = registrations.filter(reg => {
+                // 班级筛选
+                if (classFilter && reg.className !== classFilter) {
+                    return false;
+                }
+                
+                // 项目筛选
+                if (eventFilter && reg.event !== eventFilter) {
+                    return false;
+                }
+                
+                // 组别筛选
+                if (groupFilter && reg.group !== groupFilter) {
+                    return false;
+                }
+                
+                // 搜索词筛选
+                if (searchTerm && !(
+                    reg.className.toLowerCase().includes(searchTerm) ||
+                    reg.name.toLowerCase().includes(searchTerm) ||
+                    reg.phone.includes(searchTerm) ||
+                    reg.event.toLowerCase().includes(searchTerm) ||
+                    reg.group.toLowerCase().includes(searchTerm)
+                )) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // 更新导出计数
+            document.getElementById('export-count').textContent = filteredRegistrations.length;
+            
+            // 显示筛选结果
+            displayFilteredResults(filteredRegistrations);
+        }
+        
+        // 显示筛选结果
+        function displayFilteredResults(filteredRegistrations) {
             const tableBody = document.getElementById('registration-table-body');
             const noDataMsg = document.getElementById('no-registration-data');
+            const noFilterResultMsg = document.getElementById('no-filter-result');
             
             // 清空表格
             tableBody.innerHTML = '';
             
             // 检查是否有数据
-            if (registrations.length === 0) {
-                noDataMsg.classList.remove('hidden');
+            const allRegistrations = JSON.parse(localStorage.getItem('registrations') || '[]');
+            const hasNoData = allRegistrations.length === 0;
+            const hasNoFilterResult = !hasNoData && filteredRegistrations.length === 0;
+            
+            // 显示适当的提示信息
+            noDataMsg.classList.toggle('hidden', !hasNoData);
+            noFilterResultMsg.classList.toggle('hidden', !hasNoFilterResult);
+            
+            if (hasNoData || hasNoFilterResult) {
+                // 重置全选框和批量删除按钮
+                document.getElementById('select-all').checked = false;
+                updateBatchDeleteButton();
                 return;
             }
             
-            // 隐藏无数据提示
-            noDataMsg.classList.add('hidden');
-            
             // 按时间倒序排序（最新的在前面）
-            registrations.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            filteredRegistrations.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             
             // 填充表格
-            registrations.forEach(registration => {
+            filteredRegistrations.forEach(registration => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="registration-checkbox rounded border-gray-300 text-primary focus:ring-primary" data-id="${registration.id}">
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap">${registration.id}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${registration.className}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${registration.name}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${registration.phone}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${registration.event}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs rounded-full ${registration.group === '专业组' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">
+                            ${registration.group}
+                        </span>
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap">${formatDate(registration.timestamp)}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex space-x-2">
@@ -984,12 +1265,429 @@
                     }
                 });
             });
+            
+            // 为每个复选框添加事件监听
+            document.querySelectorAll('.registration-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    // 检查是否所有复选框都被选中
+                    const allChecked = document.querySelectorAll('.registration-checkbox').length === 
+                                      document.querySelectorAll('.registration-checkbox:checked').length;
+                    document.getElementById('select-all').checked = allChecked;
+                    
+                    // 更新批量删除按钮状态
+                    updateBatchDeleteButton();
+                });
+            });
+            
+            // 重置全选框
+            document.getElementById('select-all').checked = false;
+            updateBatchDeleteButton();
+        }
+        
+        // 重置筛选条件
+        function resetFilters() {
+            document.getElementById('filter-class').value = '';
+            document.getElementById('filter-event').value = '';
+            document.getElementById('filter-group').value = '';
+            document.getElementById('search-registration').value = '';
+            
+            // 重新加载所有数据
+            loadRegistrationData();
+        }
+        
+        // 设置批量删除功能
+        function setupBatchDelete() {
+            // 全选复选框事件
+            document.getElementById('select-all').addEventListener('change', function() {
+                const isChecked = this.checked;
+                document.querySelectorAll('.registration-checkbox').forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                updateBatchDeleteButton();
+            });
+            
+            // 批量删除按钮事件
+            document.getElementById('batch-delete-btn').addEventListener('click', function() {
+                const selectedCount = getSelectedCount();
+                if (selectedCount === 0) {
+                    showToast('请先选择要删除的记录', 'warning');
+                    return;
+                }
+                
+                if (confirm(`确定要删除选中的 ${selectedCount} 条记录吗？此操作不可撤销。`)) {
+                    deleteSelectedRegistrations();
+                }
+            });
+        }
+        
+        // 更新批量删除按钮状态
+        function updateBatchDeleteButton() {
+            const count = getSelectedCount();
+            const batchDeleteBtn = document.getElementById('batch-delete-btn');
+            const selectedCountEl = document.getElementById('selected-count');
+            
+            selectedCountEl.textContent = count;
+            
+            if (count > 0) {
+                batchDeleteBtn.removeAttribute('disabled');
+                batchDeleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                batchDeleteBtn.setAttribute('disabled', 'true');
+                batchDeleteBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+        
+        // 获取选中的记录数量
+        function getSelectedCount() {
+            return document.querySelectorAll('.registration-checkbox:checked').length;
+        }
+        
+        // 获取选中的记录ID
+        function getSelectedIds() {
+            const ids = [];
+            document.querySelectorAll('.registration-checkbox:checked').forEach(checkbox => {
+                ids.push(parseInt(checkbox.getAttribute('data-id')));
+            });
+            return ids;
+        }
+        
+        // 删除选中的记录
+        function deleteSelectedRegistrations() {
+            const selectedIds = getSelectedIds();
+            if (selectedIds.length === 0) return;
+            
+            let registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
+            const initialCount = registrations.length;
+            
+            // 过滤掉选中的记录
+            registrations = registrations.filter(reg => !selectedIds.includes(reg.id));
+            
+            // 保存更新后的数据
+            localStorage.setItem('registrations', JSON.stringify(registrations));
+            
+            // 重新应用筛选条件以刷新表格
+            applyFilters();
+            
+            // 更新班级筛选下拉框
+            populateClassFilter();
+            
+            // 显示提示信息
+            const deletedCount = initialCount - registrations.length;
+            showToast(`成功删除 ${deletedCount} 条记录`, 'success');
+        }
+        
+        // 加载报名信息数据
+        function loadRegistrationData() {
+            const registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
+            
+            // 更新导出计数
+            document.getElementById('export-count').textContent = registrations.length;
+            
+            // 显示所有数据（相当于没有筛选）
+            displayFilteredResults(registrations);
+            
+            // 更新班级筛选下拉框
+            populateClassFilter();
         }
         
         // 格式化日期
         function formatDate(dateString) {
             const date = new Date(dateString);
             return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        }
+        
+        // 设置批量导入功能（支持Excel格式）
+        function setupBatchImport() {
+            // 打开批量导入模态框
+            document.getElementById('batch-import-btn').addEventListener('click', function() {
+                // 重置模态框
+                document.getElementById('import-file').value = '';
+                document.getElementById('import-preview').classList.add('hidden');
+                document.getElementById('import-preview-header').innerHTML = '';
+                document.getElementById('import-preview-body').innerHTML = '';
+                
+                // 显示模态框
+                document.getElementById('batch-import-modal').classList.remove('hidden');
+            });
+            
+            // 关闭批量导入模态框
+            document.getElementById('close-batch-import-modal').addEventListener('click', function() {
+                document.getElementById('batch-import-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('cancel-import').addEventListener('click', function() {
+                document.getElementById('batch-import-modal').classList.add('hidden');
+            });
+            
+            // 文件选择处理（Excel文件）
+            document.getElementById('import-file').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                // 验证文件类型
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                if (!['xls', 'xlsx'].includes(fileExtension)) {
+                    showToast('请上传Excel格式的文件（.xls或.xlsx）', 'error');
+                    return;
+                }
+                
+                // 读取Excel文件内容
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        
+                        // 获取第一个工作表
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        
+                        // 转换为JSON
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        
+                        if (jsonData.length < 1) {
+                            showToast('Excel文件内容为空', 'error');
+                            return;
+                        }
+                        
+                        // 解析Excel并显示预览
+                        parseAndPreviewExcel(jsonData);
+                    } catch (error) {
+                        console.error('文件读取错误:', error);
+                        showToast('文件解析错误，请检查文件格式是否正确', 'error');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            });
+            
+            // 确认导入
+            document.getElementById('confirm-import').addEventListener('click', function() {
+                const fileInput = document.getElementById('import-file');
+                if (!fileInput.files[0]) {
+                    showToast('请先选择Excel文件', 'error');
+                    return;
+                }
+                
+                // 读取并导入文件
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        
+                        // 获取第一个工作表
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        
+                        // 转换为JSON
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        
+                        if (jsonData.length < 1) {
+                            showToast('Excel文件内容为空', 'error');
+                            return;
+                        }
+                        
+                        // 执行导入
+                        importExcelData(jsonData);
+                        
+                        // 关闭导入模态框
+                        document.getElementById('batch-import-modal').classList.add('hidden');
+                    } catch (error) {
+                        console.error('导入错误:', error);
+                        showToast('导入过程中发生错误', 'error');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            });
+            
+            // 关闭结果模态框
+            document.getElementById('close-result-modal').addEventListener('click', function() {
+                document.getElementById('import-result-modal').classList.add('hidden');
+            });
+        }
+        
+        // 解析Excel并显示预览
+        function parseAndPreviewExcel(data) {
+            // 表头是第一行
+            const headers = data[0].map(header => String(header).trim().toLowerCase());
+            
+            // 检查必要的列
+            const requiredColumns = ['班级', '姓名', '联系电话', '报名项目', '组别'];
+            const missingColumns = requiredColumns.filter(col => 
+                !headers.some(header => String(header).includes(col))
+            );
+            
+            if (missingColumns.length > 0) {
+                showToast(`Excel文件缺少必要的列: ${missingColumns.join(', ')}`, 'error');
+                return;
+            }
+            
+            // 显示预览
+            const headerRow = document.getElementById('import-preview-header');
+            headerRow.innerHTML = '';
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+            
+            // 显示前5行数据（跳过表头）
+            const body = document.getElementById('import-preview-body');
+            body.innerHTML = '';
+            const previewRows = data.slice(1, Math.min(6, data.length)); // 取前5行数据
+            
+            previewRows.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                
+                row.forEach((value, i) => {
+                    const td = document.createElement('td');
+                    td.className = 'px-3 py-2 text-sm text-gray-900';
+                    td.textContent = value !== undefined ? String(value) : '';
+                    tr.appendChild(td);
+                });
+                
+                body.appendChild(tr);
+            });
+            
+            // 显示预览区域
+            document.getElementById('import-preview').classList.remove('hidden');
+        }
+        
+        // 导入Excel数据
+        function importExcelData(data) {
+            // 表头是第一行
+            const headers = data[0].map(header => String(header).trim().toLowerCase());
+            
+            // 查找列索引
+            const classIndex = headers.findIndex(header => String(header).includes('班级'));
+            const nameIndex = headers.findIndex(header => String(header).includes('姓名'));
+            const phoneIndex = headers.findIndex(header => String(header).includes('电话'));
+            const eventIndex = headers.findIndex(header => String(header).includes('项目'));
+            const groupIndex = headers.findIndex(header => String(header).includes('组别'));
+            const descIndex = headers.findIndex(header => String(header).includes('简介'));
+            
+            // 准备导入结果
+            let total = 0;
+            let success = 0;
+            let failed = 0;
+            const errors = [];
+            const registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
+            const newRegistrations = [];
+            
+            // 处理每一行数据（从第二行开始，跳过表头）
+            for (let i = 1; i < data.length; i++) {
+                total++;
+                const rowNumber = i + 1; // 行号从1开始（包含表头）
+                const rowData = data[i];
+                
+                try {
+                    // 验证必要字段
+                    if (classIndex === -1 || !rowData[classIndex] || String(rowData[classIndex]).trim() === '') {
+                        throw new Error('班级不能为空');
+                    }
+                    
+                    if (nameIndex === -1 || !rowData[nameIndex] || String(rowData[nameIndex]).trim() === '') {
+                        throw new Error('姓名不能为空');
+                    }
+                    
+                    if (phoneIndex === -1 || !rowData[phoneIndex] || String(rowData[phoneIndex]).trim() === '') {
+                        throw new Error('联系电话不能为空');
+                    }
+                    
+                    // 验证手机号码格式
+                    const phone = String(rowData[phoneIndex]).trim();
+                    if (!/^1[3-9]\d{9}$/.test(phone)) {
+                        throw new Error('联系电话格式不正确');
+                    }
+                    
+                    if (eventIndex === -1 || !rowData[eventIndex] || String(rowData[eventIndex]).trim() === '') {
+                        throw new Error('报名项目不能为空');
+                    }
+                    
+                    if (groupIndex === -1 || !rowData[groupIndex] || String(rowData[groupIndex]).trim() === '') {
+                        throw new Error('组别不能为空');
+                    }
+                    
+                    // 验证组别是否有效
+                    const group = String(rowData[groupIndex]).trim();
+                    if (group !== '专业组' && group !== '非专业组') {
+                        throw new Error('组别必须是"专业组"或"非专业组"');
+                    }
+                    
+                    // 创建新报名记录
+                    const newRegistration = {
+                        id: registrations.length + newRegistrations.length + 1,
+                        className: String(rowData[classIndex]).trim(),
+                        name: String(rowData[nameIndex]).trim(),
+                        phone: phone,
+                        event: String(rowData[eventIndex]).trim(),
+                        group: group,
+                        description: descIndex !== -1 && rowData[descIndex] ? String(rowData[descIndex]).trim() : '',
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    newRegistrations.push(newRegistration);
+                    success++;
+                } catch (error) {
+                    failed++;
+                    errors.push(`第 ${rowNumber} 行: ${error.message}`);
+                }
+            }
+            
+            // 保存成功导入的数据
+            if (newRegistrations.length > 0) {
+                registrations.push(...newRegistrations);
+                localStorage.setItem('registrations', JSON.stringify(registrations));
+                
+                // 重新应用筛选条件以刷新表格
+                applyFilters();
+                
+                // 更新班级筛选下拉框
+                populateClassFilter();
+            }
+            
+            // 显示导入结果
+            document.getElementById('total-records').textContent = total;
+            document.getElementById('success-records').textContent = success;
+            document.getElementById('failed-records').textContent = failed;
+            
+            // 显示错误详情（如果有）
+            const errorDetails = document.getElementById('error-details');
+            const errorList = document.getElementById('error-list');
+            
+            if (failed > 0) {
+                errorList.innerHTML = '';
+                errors.forEach(error => {
+                    const li = document.createElement('li');
+                    li.textContent = error;
+                    errorList.appendChild(li);
+                });
+                errorDetails.classList.remove('hidden');
+            } else {
+                errorDetails.classList.add('hidden');
+            }
+            
+            // 设置结果图标
+            const resultIcon = document.getElementById('result-icon');
+            if (failed === 0) {
+                resultIcon.className = 'inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-500 mb-4';
+                resultIcon.innerHTML = '<i class="fa fa-check text-2xl"></i>';
+                document.getElementById('result-title').textContent = '全部导入成功';
+            } else if (success === 0) {
+                resultIcon.className = 'inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 text-red-500 mb-4';
+                resultIcon.innerHTML = '<i class="fa fa-times text-2xl"></i>';
+                document.getElementById('result-title').textContent = '导入失败';
+            } else {
+                resultIcon.className = 'inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-100 text-yellow-500 mb-4';
+                resultIcon.innerHTML = '<i class="fa fa-exclamation-triangle text-2xl"></i>';
+                document.getElementById('result-title').textContent = '部分导入成功';
+            }
+            
+            // 显示结果模态框
+            document.getElementById('import-result-modal').classList.remove('hidden');
         }
         
         // 设置报名信息管理功能
@@ -1023,10 +1721,11 @@
                 const name = document.getElementById('edit-name').value.trim();
                 const phone = document.getElementById('edit-phone').value.trim();
                 const event = document.getElementById('edit-event').value;
+                const group = document.getElementById('edit-group').value;
                 const description = document.getElementById('edit-description').value.trim();
                 
                 // 简单验证
-                if (!className || !name || !phone || !event) {
+                if (!className || !name || !phone || !event || !group) {
                     showToast('请填写所有必填字段', 'error');
                     return;
                 }
@@ -1049,6 +1748,7 @@
                             name,
                             phone,
                             event,
+                            group,
                             description
                         };
                         localStorage.setItem('registrations', JSON.stringify(registrations));
@@ -1062,6 +1762,7 @@
                         name,
                         phone,
                         event,
+                        group,
                         description,
                         timestamp: new Date().toISOString()
                     };
@@ -1071,103 +1772,96 @@
                     showToast('报名信息已添加', 'success');
                 }
                 
-                // 关闭模态框并刷新数据
+                // 关闭模态框并重新应用筛选条件
                 document.getElementById('registration-modal').classList.add('hidden');
-                loadRegistrationData();
-            });
-            
-            // 搜索功能
-            document.getElementById('search-registration').addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase().trim();
-                const rows = document.querySelectorAll('#registration-table-body tr');
+                applyFilters();
                 
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(searchTerm) ? '' : 'none';
-                });
+                // 更新班级筛选下拉框
+                populateClassFilter();
             });
             
-            // 导出CSV文件
+            // 导出Excel文件（只导出筛选结果）
             document.getElementById('export-csv-btn').addEventListener('click', function() {
-                exportRegistrationsToCSV();
+                exportFilteredResultsToExcel();
             });
         }
         
-        // 导出报名信息到CSV（带筛选功能）
-        function exportRegistrationsToCSV() {
+        // 导出筛选结果到Excel
+        function exportFilteredResultsToExcel() {
             try {
-                const registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
+                // 获取筛选条件
+                const classFilter = document.getElementById('filter-class').value;
+                const eventFilter = document.getElementById('filter-event').value;
+                const groupFilter = document.getElementById('filter-group').value;
                 const searchTerm = document.getElementById('search-registration').value.toLowerCase().trim();
                 
-                // 应用筛选条件
-                let filteredRegistrations = registrations;
-                if (searchTerm) {
-                    filteredRegistrations = registrations.filter(reg => 
+                // 获取所有数据并应用筛选条件
+                const allRegistrations = JSON.parse(localStorage.getItem('registrations') || '[]');
+                const filteredRegistrations = allRegistrations.filter(reg => {
+                    // 应用相同的筛选逻辑
+                    if (classFilter && reg.className !== classFilter) return false;
+                    if (eventFilter && reg.event !== eventFilter) return false;
+                    if (groupFilter && reg.group !== groupFilter) return false;
+                    
+                    if (searchTerm && !(
                         reg.className.toLowerCase().includes(searchTerm) ||
                         reg.name.toLowerCase().includes(searchTerm) ||
+                        reg.phone.includes(searchTerm) ||
                         reg.event.toLowerCase().includes(searchTerm) ||
-                        reg.phone.includes(searchTerm)
-                    );
-                }
+                        reg.group.toLowerCase().includes(searchTerm)
+                    )) return false;
+                    
+                    return true;
+                });
                 
                 if (filteredRegistrations.length === 0) {
-                    showToast('没有匹配筛选条件的报名数据', 'warning');
+                    showToast('没有符合筛选条件的数据可导出', 'warning');
                     return;
                 }
                 
-                // CSV表头
-                const headers = ['ID', '班级', '姓名', '联系电话', '报名项目', '报名时间', '作品/节目简介'];
+                // 准备Excel数据
+                const header = ['ID', '班级', '姓名', '联系电话', '报名项目', '组别', '报名时间', '作品/节目简介'];
+                const data = [header];
                 
-                // 处理数据并转换为CSV格式
-                let csvContent = headers.join(',') + '\n';
+                // 按ID排序
+                filteredRegistrations.sort((a, b) => a.id - b.id);
                 
                 filteredRegistrations.forEach(reg => {
-                    // 处理包含逗号或引号的字段
-                    const fields = [
-                        reg.id.toString(),
-                        escapeCSVField(reg.className || ''),
-                        escapeCSVField(reg.name || ''),
-                        escapeCSVField(reg.phone || ''),
-                        escapeCSVField(reg.event || ''),
-                        escapeCSVField(formatDate(reg.timestamp) || ''),
-                        escapeCSVField(reg.description || '')
-                    ];
-                    csvContent += fields.join(',') + '\n';
+                    data.push([
+                        reg.id,
+                        reg.className || '',
+                        reg.name || '',
+                        reg.phone || '',
+                        reg.event || '',
+                        reg.group || '',
+                        formatDate(reg.timestamp) || '',
+                        reg.description || ''
+                    ]);
                 });
                 
-                // 创建Blob对象
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                // 创建工作簿和工作表
+                const worksheet = XLSX.utils.aoa_to_sheet(data);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "报名信息");
                 
-                // 创建下载链接
-                const link = document.createElement('a');
-                const url = URL.createObjectURL(blob);
+                // 生成包含筛选条件的文件名
+                let filterInfo = [];
+                if (classFilter) filterInfo.push(`班级_${classFilter}`);
+                if (eventFilter) filterInfo.push(`项目_${eventFilter}`);
+                if (groupFilter) filterInfo.push(`组别_${groupFilter}`);
+                if (searchTerm) filterInfo.push(`搜索_${searchTerm}`);
                 
-                // 设置文件名（包含筛选条件）
-                const fileName = `汝城三中艺术节报名信息_${searchTerm ? `筛选_${searchTerm}_` : ''}${new Date().toLocaleDateString().replace(/\//g, '-')}.csv`;
+                const filterStr = filterInfo.length > 0 ? `筛选_${filterInfo.join('_')}_` : '';
+                const fileName = `汝城三中艺术节报名信息_${filterStr}${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`;
                 
-                link.setAttribute('href', url);
-                link.setAttribute('download', fileName);
-                link.style.visibility = 'hidden';
+                // 导出文件
+                XLSX.writeFile(workbook, fileName);
                 
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                showToast('筛选后的报名信息已成功导出为CSV文件', 'success');
+                showToast(`成功导出 ${filteredRegistrations.length} 条筛选结果到Excel`, 'success');
             } catch (error) {
-                console.error('CSV导出错误:', error);
+                console.error('Excel导出错误:', error);
                 showToast(`导出失败: ${error.message}`, 'error');
             }
-        }
-        
-        // 处理CSV字段中的特殊字符
-        function escapeCSVField(field) {
-            // 如果字段包含逗号、引号或换行符，需要用双引号括起来
-            if (field.includes(',') || field.includes('"') || field.includes('\n')) {
-                // 替换双引号为两个双引号
-                return `"${field.replace(/"/g, '""')}"`;
-            }
-            return field;
         }
         
         // 打开编辑报名信息模态框
@@ -1181,6 +1875,7 @@
                 document.getElementById('edit-name').value = registration.name;
                 document.getElementById('edit-phone').value = registration.phone;
                 document.getElementById('edit-event').value = registration.event;
+                document.getElementById('edit-group').value = registration.group;
                 document.getElementById('edit-description').value = registration.description || '';
                 
                 document.getElementById('registration-modal-title').textContent = '编辑报名信息';
@@ -1194,7 +1889,13 @@
             const updatedRegistrations = registrations.filter(r => r.id !== id);
             
             localStorage.setItem('registrations', JSON.stringify(updatedRegistrations));
-            loadRegistrationData();
+            
+            // 重新应用筛选条件以刷新表格
+            applyFilters();
+            
+            // 更新班级筛选下拉框
+            populateClassFilter();
+            
             showToast('报名信息已删除', 'success');
         }
         
@@ -1701,6 +2402,7 @@
             setupAdminLogin();
             setupAdminNavigation();
             setupRegistrationManagement();
+            setupBatchImport(); // 支持Excel格式的批量导入功能
             setupAdminManagement();
             setupHomepageEdit();
             setupChangePassword();
