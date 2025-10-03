@@ -3,23 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>汝城县第三中学艺术节管理系统</title>
+    <title>汝城县第三中学艺术节管理系统 - 首页</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <!-- 引入SheetJS库用于处理Excel文件 -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    
-    <!-- 配置Tailwind自定义颜色和字体 -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#1E40AF',
-                        secondary: '#F97316',
-                        neutral: '#64748B',
-                        light: '#F8FAFC',
-                        dark: '#0F172A'
+                        primary: '#1E40AF', // 主色（深蓝）
+                        secondary: '#3B82F6', // 辅助色（浅蓝）
+                        accent: '#60A5FA', // 强调色
+                        neutral: '#F3F4F6', // 中性色
                     },
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -28,2394 +23,295 @@
             }
         }
     </script>
-    
     <style type="text/tailwindcss">
         @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .card-shadow {
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            }
-            .transition-custom {
-                transition: all 0.3s ease;
-            }
-            .delete-btn-hover {
-                @apply hover:bg-red-50 hover:text-red-600 transition-custom;
-            }
+            .content-auto { content-visibility: auto; }
+            .btn-primary { @apply bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors duration-300 font-medium; }
+            .btn-secondary { @apply bg-white border-2 border-primary text-primary px-6 py-3 rounded-lg hover:bg-neutral transition-colors duration-300 font-medium; }
+            .card-shadow { @apply shadow-md hover:shadow-lg transition-shadow duration-300; }
         }
     </style>
 </head>
-<body class="bg-gray-50 font-sans text-dark min-h-screen">
-    <!-- 页面容器 -->
-    <div class="flex flex-col min-h-screen">
-        <!-- 头部导航 -->
-        <header class="bg-primary text-white shadow-md">
-            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <i class="fa fa-music text-2xl"></i>
-                    <h1 class="text-xl md:text-2xl font-bold">汝城县第三中学艺术节管理系统</h1>
-                </div>
-                <nav id="main-nav" class="hidden md:flex items-center space-x-6">
-                    <a href="#" id="nav-home" class="hover:text-secondary transition-custom">首页</a>
-                    <a href="#" id="nav-register" class="hover:text-secondary transition-custom">报名入口</a>
-                    <a href="#" id="nav-admin" class="hover:text-secondary transition-custom">管理员登录</a>
-                </nav>
-                <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none">
-                    <i class="fa fa-bars text-xl"></i>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 头部导航 -->
+    <header class="bg-primary text-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <i class="fa fa-music text-2xl mr-3"></i>
+                <h1 class="text-2xl font-bold">汝城县第三中学艺术节管理系统</h1>
+            </div>
+            <div>
+                <button id="adminLoginBtn" class="flex items-center text-white hover:text-gray-200">
+                    <i class="fa fa-user-circle mr-2 text-xl"></i>
+                    <span>管理员登录</span>
                 </button>
             </div>
-            <!-- 移动端菜单 -->
-            <div id="mobile-menu" class="hidden md:hidden bg-primary/95 shadow-lg">
-                <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
-                    <a href="#" id="mobile-nav-home" class="py-2 hover:text-secondary transition-custom">首页</a>
-                    <a href="#" id="mobile-nav-register" class="py-2 hover:text-secondary transition-custom">报名入口</a>
-                    <a href="#" id="mobile-nav-admin" class="py-2 hover:text-secondary transition-custom">管理员登录</a>
-                </div>
-            </div>
-        </header>
-
-        <!-- 主要内容区域 -->
-        <main class="flex-grow container mx-auto px-4 py-8">
-            <!-- 首页内容 -->
-            <section id="home-page" class="space-y-8">
-                <div class="bg-gradient-to-r from-primary to-primary/80 text-white rounded-xl p-6 md:p-10 text-center shadow-lg">
-                    <h2 class="text-2xl md:text-4xl font-bold mb-4">汝城县第三中学艺术节</h2>
-                    <p class="text-lg md:text-xl max-w-3xl mx-auto opacity-90">展示艺术才华，绽放青春光彩，共创美好校园文化</p>
-                </div>
-                
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-custom">
-                        <div class="flex items-center mb-4">
-                            <div class="bg-primary/10 p-3 rounded-full mr-4">
-                                <i class="fa fa-user-circle text-primary text-2xl"></i>
-                            </div>
-                            <h3 class="text-xl font-bold">学生报名入口</h3>
-                        </div>
-                        <p class="text-neutral mb-6">参加艺术节各项比赛和活动的同学，请点击下方按钮进入报名系统，填写相关信息完成报名。每个项目分为专业组和非专业组。</p>
-                        <div class="flex flex-wrap gap-4 mb-4">
-                            <span class="bg-gray-100 px-3 py-1 rounded-full text-sm">独唱</span>
-                            <span class="bg-gray-100 px-3 py-1 rounded-full text-sm">独奏</span>
-                            <span class="bg-gray-100 px-3 py-1 rounded-full text-sm">独舞</span>
-                            <span class="bg-gray-100 px-3 py-1 rounded-full text-sm">书法大赛</span>
-                            <span class="bg-gray-100 px-3 py-1 rounded-full text-sm">绘画大赛</span>
-                            <span class="bg-gray-100 px-3 py-1 rounded-full text-sm">主持人大赛</span>
-                            <span class="bg-gray-100 px-3 py-1 rounded-full text-sm">综合大型节目</span>
-                            <span class="bg-gray-100 px-3 py-1 rounded-full text-sm">班级合唱比赛</span>
-                        </div>
-                        <button id="go-register-btn" class="bg-secondary hover:bg-secondary/90 text-white font-medium py-2 px-6 rounded-lg transition-custom w-full md:w-auto">
-                            进入报名 <i class="fa fa-arrow-right ml-2"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-custom">
-                        <div class="flex items-center mb-4">
-                            <div class="bg-primary/10 p-3 rounded-full mr-4">
-                                <i class="fa fa-cogs text-primary text-2xl"></i>
-                            </div>
-                            <h3 class="text-xl font-bold">管理员登录</h3>
-                        </div>
-                        <p class="text-neutral mb-6">管理员请通过下方入口登录系统，进行报名信息管理、首页内容修改和管理员权限管理等操作。支持批量导入报名信息。</p>
-                        <form id="quick-login-form" class="space-y-4">
-                            <div>
-                                <label for="quick-phone" class="block text-sm font-medium text-gray-700 mb-1">手机号码</label>
-                                <input type="tel" id="quick-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom" placeholder="请输入管理员手机号">
-                            </div>
-                            <div>
-                                <label for="quick-password" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
-                                <input type="password" id="quick-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom" placeholder="请输入密码">
-                            </div>
-                            <button type="submit" class="bg-primary hover:bg-primary/90 text-white font-medium py-2 px-6 rounded-lg transition-custom w-full">
-                                管理员登录 <i class="fa fa-sign-in ml-2"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-xl p-6 md:p-8 card-shadow">
-                    <h3 class="text-xl font-bold mb-4 text-center">艺术节活动安排</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">活动项目</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">报名截止日期</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">比赛时间</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">地点</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200" id="event-schedule">
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">独唱、独奏、独舞</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">10月30日</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">11月10日</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">学校礼堂</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">书法大赛、绘画大赛</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">10月25日</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">11月5日</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">美术教室</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">主持人大赛</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">10月28日</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">11月8日</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">学校礼堂</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">综合大型节目、班级合唱比赛</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">11月5日</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">11月20日</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">学校操场</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 报名页面内容 -->
-            <section id="register-page" class="hidden">
-                <div class="max-w-2xl mx-auto">
-                    <div class="text-center mb-8">
-                        <h2 class="text-2xl md:text-3xl font-bold text-primary mb-2">艺术节活动报名</h2>
-                        <p class="text-neutral">请填写以下信息完成报名，带 <span class="text-red-500">*</span> 为必填项</p>
-                    </div>
-                    
-                    <div class="bg-white rounded-xl p-6 md:p-8 card-shadow">
-                        <form id="registration-form" class="space-y-6">
-                            <div class="grid md:grid-cols-2 gap-6">
-                                <div>
-                                    <label for="class" class="block text-sm font-medium text-gray-700 mb-1">班级 <span class="text-red-500">*</span></label>
-                                    <input type="text" id="class" name="class" required
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                                        placeholder="例如：高一(1)班">
-                                </div>
-                                <div>
-                                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">姓名 <span class="text-red-500">*</span></label>
-                                    <input type="text" id="name" name="name" required
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                                        placeholder="请输入您的姓名">
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">联系电话 <span class="text-red-500">*</span></label>
-                                <input type="tel" id="phone" name="phone" required
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                                    placeholder="请输入手机号码">
-                            </div>
-                            
-                            <div class="grid md:grid-cols-2 gap-6">
-                                <div>
-                                    <label for="event" class="block text-sm font-medium text-gray-700 mb-1">报名项目 <span class="text-red-500">*</span></label>
-                                    <select id="event" name="event" required
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
-                                        <option value="">请选择报名项目</option>
-                                        <option value="独唱">独唱</option>
-                                        <option value="独奏">独奏</option>
-                                        <option value="独舞">独舞</option>
-                                        <option value="书法大赛">书法大赛</option>
-                                        <option value="绘画大赛">绘画大赛</option>
-                                        <option value="主持人大赛">主持人大赛</option>
-                                        <option value="综合大型节目">综合大型节目</option>
-                                        <option value="班级合唱比赛">班级合唱比赛</option>
-                                    </select>
-                                </div>
-                                
-                                <div>
-                                    <label for="group" class="block text-sm font-medium text-gray-700 mb-1">组别 <span class="text-red-500">*</span></label>
-                                    <select id="group" name="group" required
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
-                                        <option value="">请选择组别</option>
-                                        <option value="专业组">专业组</option>
-                                        <option value="非专业组">非专业组</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">作品/节目简介（可选）</label>
-                                <textarea id="description" name="description" rows="3"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                                    placeholder="请简要描述您的作品或节目（可选）"></textarea>
-                            </div>
-                            
-                            <div class="pt-2 flex justify-end space-x-4">
-                                <button type="button" id="back-from-register" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-custom">
-                                    返回首页
-                                </button>
-                                <button type="submit" class="px-6 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-custom">
-                                    提交报名 <i class="fa fa-check ml-1"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 管理员登录页面 -->
-            <section id="admin-login-page" class="hidden">
-                <div class="max-w-md mx-auto">
-                    <div class="text-center mb-8">
-                        <h2 class="text-2xl md:text-3xl font-bold text-primary mb-2">管理员登录</h2>
-                        <p class="text-neutral">请输入您的账号和密码登录管理系统</p>
-                    </div>
-                    
-                    <div class="bg-white rounded-xl p-6 md:p-8 card-shadow">
-                        <form id="admin-login-form" class="space-y-6">
-                            <div>
-                                <label for="admin-phone" class="block text-sm font-medium text-gray-700 mb-1">手机号码 <span class="text-red-500">*</span></label>
-                                <input type="tel" id="admin-phone" name="admin-phone" required
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                                    placeholder="请输入管理员手机号">
-                            </div>
-                            
-                            <div>
-                                <label for="admin-password" class="block text-sm font-medium text-gray-700 mb-1">密码 <span class="text-red-500">*</span></label>
-                                <input type="password" id="admin-password" name="admin-password" required
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                                    placeholder="请输入密码">
-                            </div>
-                            
-                            <div class="pt-2 flex justify-end space-x-4">
-                                <button type="button" id="back-from-login" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-custom">
-                                    返回首页
-                                </button>
-                                <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
-                                    登录 <i class="fa fa-sign-in ml-1"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 管理员管理页面 -->
-            <section id="admin-page" class="hidden">
-                <div class="flex flex-col md:flex-row gap-6">
-                    <!-- 左侧导航 -->
-                    <div class="w-full md:w-64 bg-white rounded-xl p-4 card-shadow">
-                        <div class="mb-6">
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="font-bold text-lg">管理菜单</h3>
-                                <span id="admin-role-badge" class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full">管理员</span>
-                            </div>
-                            <p class="text-sm text-neutral mb-4" id="current-admin-name">管理员</p>
-                            <button id="change-password-btn" class="w-full text-left text-sm text-primary hover:text-primary/80 transition-custom">
-                                <i class="fa fa-key mr-2"></i> 修改密码
-                            </button>
-                        </div>
-                        
-                        <nav class="space-y-1">
-                            <button class="admin-nav-btn w-full text-left px-4 py-2 rounded-lg bg-primary/10 text-primary font-medium flex items-center" data-target="registration-management">
-                                <i class="fa fa-list-alt w-5 mr-3"></i> 报名信息管理
-                            </button>
-                            <button class="admin-nav-btn w-full text-left px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 font-medium flex items-center" data-target="homepage-edit">
-                                <i class="fa fa-home w-5 mr-3"></i> 主页修改
-                            </button>
-                            <button class="admin-nav-btn w-full text-left px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 font-medium flex items-center" data-target="admin-management">
-                                <i class="fa fa-users w-5 mr-3"></i> 管理员管理
-                            </button>
-                        </nav>
-                        
-                        <div class="mt-8 pt-4 border-t border-gray-200">
-                            <button id="logout-btn" class="w-full flex items-center justify-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-custom">
-                                <i class="fa fa-sign-out mr-2"></i> 退出登录
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- 右侧内容区域 -->
-                    <div class="flex-grow">
-                        <!-- 报名信息管理 -->
-                        <div id="registration-management" class="admin-content">
-                            <div class="bg-white rounded-xl p-6 card-shadow mb-6">
-                                <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-                                    <h2 class="text-xl font-bold">报名信息管理</h2>
-                                    <div class="flex flex-wrap gap-3">
-                                        <div class="relative">
-                                            <input type="text" id="search-registration" placeholder="搜索姓名、班级或项目..."
-                                                class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
-                                            <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                        </div>
-                                        <button id="batch-delete-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-custom flex items-center" disabled>
-                                            <i class="fa fa-trash mr-2"></i> 批量删除
-                                            <span id="selected-count" class="ml-1 bg-white text-red-600 text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
-                                        </button>
-                                        <button id="add-registration-btn" class="bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg transition-custom flex items-center">
-                                            <i class="fa fa-plus mr-2"></i> 添加报名
-                                        </button>
-                                        <button id="batch-import-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-custom flex items-center">
-                                            <i class="fa fa-upload mr-2"></i> 批量导入
-                                        </button>
-                                        <button id="export-csv-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-custom flex items-center">
-                                            <i class="fa fa-download mr-2"></i> 导出Excel
-                                            <span id="export-count" class="ml-1 bg-white text-green-600 text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <!-- 筛选条件区域 -->
-                                <div class="flex flex-wrap gap-4 mb-6 pb-4 border-b border-gray-200">
-                                    <div class="w-full sm:w-auto">
-                                        <label for="filter-class" class="block text-sm font-medium text-gray-700 mb-1">班级</label>
-                                        <select id="filter-class" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
-                                            <option value="">全部班级</option>
-                                            <!-- 班级选项将通过JavaScript动态生成 -->
-                                        </select>
-                                    </div>
-                                    <div class="w-full sm:w-auto">
-                                        <label for="filter-event" class="block text-sm font-medium text-gray-700 mb-1">报名项目</label>
-                                        <select id="filter-event" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
-                                            <option value="">全部项目</option>
-                                            <option value="独唱">独唱</option>
-                                            <option value="独奏">独奏</option>
-                                            <option value="独舞">独舞</option>
-                                            <option value="书法大赛">书法大赛</option>
-                                            <option value="绘画大赛">绘画大赛</option>
-                                            <option value="主持人大赛">主持人大赛</option>
-                                            <option value="综合大型节目">综合大型节目</option>
-                                            <option value="班级合唱比赛">班级合唱比赛</option>
-                                        </select>
-                                    </div>
-                                    <div class="w-full sm:w-auto">
-                                        <label for="filter-group" class="block text-sm font-medium text-gray-700 mb-1">组别</label>
-                                        <select id="filter-group" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
-                                            <option value="">全部组别</option>
-                                            <option value="专业组">专业组</option>
-                                            <option value="非专业组">非专业组</option>
-                                        </select>
-                                    </div>
-                                    <div class="w-full sm:w-auto self-end">
-                                        <button id="reset-filter" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-custom">
-                                            <i class="fa fa-refresh mr-1"></i> 重置筛选
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div class="overflow-x-auto">
-                                    <table class="min-w-full divide-y divide-gray-200">
-                                        <thead class="bg-gray-50">
-                                            <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    <input type="checkbox" id="select-all" class="rounded border-gray-300 text-primary focus:ring-primary">
-                                                </th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">班级</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">姓名</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">联系电话</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">报名项目</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">组别</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">报名时间</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="registration-table-body" class="bg-white divide-y divide-gray-200">
-                                            <!-- 表格内容将通过JavaScript动态生成 -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                                
-                                <div id="no-registration-data" class="py-12 text-center hidden">
-                                    <i class="fa fa-folder-open-o text-4xl text-gray-300 mb-3"></i>
-                                    <p class="text-gray-500">暂无报名数据</p>
-                                </div>
-                                
-                                <div id="no-filter-result" class="py-12 text-center hidden">
-                                    <i class="fa fa-search text-4xl text-gray-300 mb-3"></i>
-                                    <p class="text-gray-500">没有符合筛选条件的记录</p>
-                                    <button id="reset-filter-btn" class="mt-2 text-primary hover:text-primary/80 transition-custom">
-                                        重置筛选条件
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- 主页修改 -->
-                        <div id="homepage-edit" class="admin-content hidden">
-                            <div class="bg-white rounded-xl p-6 card-shadow">
-                                <h2 class="text-xl font-bold mb-6">主页信息修改</h2>
-                                
-                                <form id="homepage-edit-form" class="space-y-6">
-                                    <div>
-                                        <label for="homepage-title" class="block text-sm font-medium text-gray-700 mb-1">系统标题</label>
-                                        <input type="text" id="homepage-title" value="汝城县第三中学艺术节管理系统"
-                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
-                                    </div>
-                                    
-                                    <div>
-                                        <label for="homepage-subtitle" class="block text-sm font-medium text-gray-700 mb-1">艺术节副标题</label>
-                                        <input type="text" id="homepage-subtitle" value="展示艺术才华，绽放青春光彩，共创美好校园文化"
-                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-3">活动安排</label>
-                                        <div id="event-schedule-editor">
-                                            <!-- 活动安排编辑区域将通过JavaScript动态生成 -->
-                                        </div>
-                                        <button type="button" id="add-event-btn" class="mt-3 text-sm text-primary hover:text-primary/80 transition-custom">
-                                            <i class="fa fa-plus mr-1"></i> 添加活动
-                                        </button>
-                                    </div>
-                                    
-                                    <div class="pt-4 flex justify-end">
-                                        <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
-                                            保存修改 <i class="fa fa-save ml-1"></i>
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        
-                        <!-- 管理员管理 -->
-                        <div id="admin-management" class="admin-content hidden">
-                            <div class="bg-white rounded-xl p-6 card-shadow mb-6">
-                                <div class="flex justify-between items-center mb-6">
-                                    <h2 class="text-xl font-bold">管理员管理</h2>
-                                    <button id="add-admin-btn" class="bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg transition-custom flex items-center">
-                                        <i class="fa fa-plus mr-2"></i> 添加管理员
-                                    </button>
-                                </div>
-                                
-                                <div class="overflow-x-auto">
-                                    <table class="min-w-full divide-y divide-gray-200">
-                                        <thead class="bg-gray-50">
-                                            <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">姓名</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">手机号码</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">角色</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="admin-table-body" class="bg-white divide-y divide-gray-200">
-                                            <!-- 表格内容将通过JavaScript动态生成 -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <!-- 页脚 -->
-        <footer class="bg-dark text-white py-6 mt-12">
-            <div class="container mx-auto px-4">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div class="mb-4 md:mb-0">
-                        <p>&copy; 2023 汝城县第三中学体艺处. 保留所有权利.</p>
-                    </div>
-                    <div class="flex space-x-4">
-                        <a href="#" class="hover:text-secondary transition-custom"><i class="fa fa-phone"></i> 联系我们</a>
-                        <a href="#" class="hover:text-secondary transition-custom"><i class="fa fa-question-circle"></i> 帮助中心</a>
-                    </div>
-                </div>
-            </div>
-        </footer>
-    </div>
-
-    <!-- 模态框：添加/编辑报名信息 -->
-    <div id="registration-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="registration-modal-title" class="text-xl font-bold">添加报名信息</h3>
-                <button id="close-registration-modal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fa fa-times text-xl"></i>
-                </button>
-            </div>
-            
-            <form id="registration-edit-form" class="space-y-4">
-                <input type="hidden" id="registration-id">
-                
-                <div>
-                    <label for="edit-class" class="block text-sm font-medium text-gray-700 mb-1">班级 <span class="text-red-500">*</span></label>
-                    <input type="text" id="edit-class" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                        placeholder="例如：高一(1)班">
-                </div>
-                
-                <div>
-                    <label for="edit-name" class="block text-sm font-medium text-gray-700 mb-1">姓名 <span class="text-red-500">*</span></label>
-                    <input type="text" id="edit-name" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                        placeholder="请输入姓名">
-                </div>
-                
-                <div>
-                    <label for="edit-phone" class="block text-sm font-medium text-gray-700 mb-1">联系电话 <span class="text-red-500">*</span></label>
-                    <input type="tel" id="edit-phone" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                        placeholder="请输入手机号码">
-                </div>
-                
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="edit-event" class="block text-sm font-medium text-gray-700 mb-1">报名项目 <span class="text-red-500">*</span></label>
-                        <select id="edit-event" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
-                            <option value="独唱">独唱</option>
-                            <option value="独奏">独奏</option>
-                            <option value="独舞">独舞</option>
-                            <option value="书法大赛">书法大赛</option>
-                            <option value="绘画大赛">绘画大赛</option>
-                            <option value="主持人大赛">主持人大赛</option>
-                            <option value="综合大型节目">综合大型节目</option>
-                            <option value="班级合唱比赛">班级合唱比赛</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label for="edit-group" class="block text-sm font-medium text-gray-700 mb-1">组别 <span class="text-red-500">*</span></label>
-                        <select id="edit-group" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
-                            <option value="专业组">专业组</option>
-                            <option value="非专业组">非专业组</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div>
-                    <label for="edit-description" class="block text-sm font-medium text-gray-700 mb-1">作品/节目简介（可选）</label>
-                    <textarea id="edit-description" rows="3"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                        placeholder="请简要描述作品或节目（可选）"></textarea>
-                </div>
-                
-                <div class="pt-2 flex justify-end space-x-3">
-                    <button type="button" id="cancel-registration" class="px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-custom">
-                        取消
-                    </button>
-                    <button type="submit" class="px-5 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
-                        保存
-                    </button>
-                </div>
-            </form>
         </div>
-    </div>
+    </header>
 
-    <!-- 模态框：批量导入 -->
-    <div id="batch-import-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl p-6 max-w-md w-full">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">批量导入报名信息</h3>
-                <button id="close-batch-import-modal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fa fa-times text-xl"></i>
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- 欢迎横幅 -->
+        <section class="bg-gradient-to-r from-primary to-secondary text-white rounded-xl p-8 mb-10 text-center">
+            <h2 class="text-3xl font-bold mb-4">汝城县第三中学第XX届艺术节</h2>
+            <p class="text-xl mb-6 max-w-3xl mx-auto">展示艺术风采，绽放青春活力，欢迎全体同学积极报名参与！</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="register.html" class="btn-primary">
+                    <i class="fa fa-pencil-square-o mr-2"></i>立即报名
+                </a>
+                <button class="btn-secondary text-primary bg-white" id="viewEventsBtn">
+                    <i class="fa fa-list mr-2"></i>查看活动项目
                 </button>
             </div>
-            
-            <div class="space-y-4">
-                <div>
-                    <p class="text-sm text-gray-600 mb-3">
-                        请上传Excel格式文件（.xls或.xlsx）进行批量导入，文件应包含以下列（顺序不限）：
-                        <span class="block mt-2 text-xs text-gray-500">班级, 姓名, 联系电话, 报名项目, 组别(专业组/非专业组), 作品/节目简介(可选)</span>
+        </section>
+
+        <!-- 活动信息 -->
+        <section class="mb-10">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">活动须知</h3>
+                <span class="text-red-600 font-medium"><i class="fa fa-clock-o mr-1"></i>报名截止：202X年XX月XX日</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 报名说明 -->
+                <div class="bg-white rounded-lg p-6 card-shadow">
+                    <h4 class="text-xl font-semibold text-primary mb-4 flex items-center">
+                        <i class="fa fa-info-circle mr-2"></i>报名说明
+                    </h4>
+                    <ul class="space-y-3 text-gray-700">
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span>每位同学可报名1-2个活动项目，需准确填写个人信息</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span>活动项目分“专业组”和“非专业组”，请根据自身情况选择</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span>报名后请关注系统通知，按时参加选拔与比赛</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span>咨询电话：0735-XXXXXXXX（体艺处）</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 活动流程 -->
+                <div class="bg-white rounded-lg p-6 card-shadow">
+                    <h4 class="text-xl font-semibold text-primary mb-4 flex items-center">
+                        <i class="fa fa-calendar-check-o mr-2"></i>活动流程
+                    </h4>
+                    <ol class="space-y-3 text-gray-700 list-decimal list-inside">
+                        <li class="flex items-start">
+                            <span class="font-medium">报名阶段</span>：202X年XX月XX日 - 202X年XX月XX日
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-medium">选拔阶段</span>：202X年XX月XX日 - 202X年XX月XX日
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-medium">决赛阶段</span>：202X年XX月XX日（艺术节开幕式当天）
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-medium">颁奖环节</span>：决赛结束后现场颁奖
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- 活动项目列表（默认隐藏，点击按钮显示） -->
+        <section id="eventsList" class="hidden mb-10">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6">艺术节活动项目</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- 独唱 -->
+                <div class="bg-white rounded-lg p-6 card-shadow border-t-4 border-primary">
+                    <div class="text-primary text-3xl mb-4 text-center">
+                        <i class="fa fa-microphone"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold text-center mb-3">独唱</h4>
+                    <p class="text-gray-600 text-center text-sm">
+                        歌曲类型不限，时长3-5分钟，自备伴奏
                     </p>
-                    
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-custom">
-                        <input type="file" id="import-file" accept=".xls,.xlsx" class="hidden">
-                        <label for="import-file" class="cursor-pointer">
-                            <i class="fa fa-cloud-upload text-3xl text-gray-400 mb-2"></i>
-                            <p class="text-gray-600">点击或拖拽Excel文件到此处</p>
-                            <p class="text-xs text-gray-500 mt-1">支持的格式: .xls, .xlsx</p>
-                        </label>
+                </div>
+                <!-- 独奏 -->
+                <div class="bg-white rounded-lg p-6 card-shadow border-t-4 border-primary">
+                    <div class="text-primary text-3xl mb-4 text-center">
+                        <i class="fa fa-music"></i>
                     </div>
+                    <h4 class="text-xl font-semibold text-center mb-3">独奏</h4>
+                    <p class="text-gray-600 text-center text-sm">
+                        乐器不限，时长3-5分钟，自备乐器（钢琴除外）
+                    </p>
                 </div>
-                
-                <div id="import-preview" class="hidden">
-                    <h4 class="font-medium text-gray-800 mb-2">预览 (前5条)</h4>
-                    <div class="overflow-x-auto max-h-40 border border-gray-200 rounded-lg">
-                        <table class="min-w-full text-sm">
-                            <thead class="bg-gray-50">
-                                <tr id="import-preview-header">
-                                    <!-- 预览表头将动态生成 -->
-                                </tr>
-                            </thead>
-                            <tbody id="import-preview-body">
-                                <!-- 预览内容将动态生成 -->
-                            </tbody>
-                        </table>
+                <!-- 独舞 -->
+                <div class="bg-white rounded-lg p-6 card-shadow border-t-4 border-primary">
+                    <div class="text-primary text-3xl mb-4 text-center">
+                        <i class="fa fa-female"></i>
                     </div>
+                    <h4 class="text-xl font-semibold text-center mb-3">独舞</h4>
+                    <p class="text-gray-600 text-center text-sm">
+                        舞蹈类型不限，时长3-4分钟，自备音乐与服装
+                    </p>
                 </div>
-                
-                <div class="pt-2 flex justify-end space-x-3">
-                    <button type="button" id="cancel-import" class="px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-custom">
-                        取消
-                    </button>
-                    <button type="button" id="confirm-import" class="px-5 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
-                        确认导入
-                    </button>
+                <!-- 书法大赛 -->
+                <div class="bg-white rounded-lg p-6 card-shadow border-t-4 border-primary">
+                    <div class="text-primary text-3xl mb-4 text-center">
+                        <i class="fa fa-pencil"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold text-center mb-3">书法大赛</h4>
+                    <p class="text-gray-600 text-center text-sm">
+                        软笔/硬笔均可，现场创作，主题指定
+                    </p>
+                </div>
+                <!-- 绘画大赛 -->
+                <div class="bg-white rounded-lg p-6 card-shadow border-t-4 border-primary">
+                    <div class="text-primary text-3xl mb-4 text-center">
+                        <i class="fa fa-paint-brush"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold text-center mb-3">绘画大赛</h4>
+                    <p class="text-gray-600 text-center text-sm">
+                        画种不限，尺寸A3以内，主题“青春与艺术”
+                    </p>
+                </div>
+                <!-- 主持人大赛 -->
+                <div class="bg-white rounded-lg p-6 card-shadow border-t-4 border-primary">
+                    <div class="text-primary text-3xl mb-4 text-center">
+                        <i class="fa fa-tv"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold text-center mb-3">主持人大赛</h4>
+                    <p class="text-gray-600 text-center text-sm">
+                        含自我介绍、模拟主持、即兴问答三个环节
+                    </p>
+                </div>
+                <!-- 综合大型节目 -->
+                <div class="bg-white rounded-lg p-6 card-shadow border-t-4 border-primary">
+                    <div class="text-primary text-3xl mb-4 text-center">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold text-center mb-3">综合大型节目</h4>
+                    <p class="text-gray-600 text-center text-sm">
+                        小品、话剧、朗诵等，人数5人以上，时长5-8分钟
+                    </p>
+                </div>
+                <!-- 班级合唱比赛 -->
+                <div class="bg-white rounded-lg p-6 card-shadow border-t-4 border-primary">
+                    <div class="text-primary text-3xl mb-4 text-center">
+                        <i class="fa fa-microphone-slash"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold text-center mb-3">班级合唱比赛</h4>
+                    <p class="text-gray-600 text-center text-sm">
+                        以班级为单位，人数不少于30人，曲目2首（必选+自选）
+                    </p>
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
-    <!-- 模态框：导入结果 -->
-    <div id="import-result-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl p-6 max-w-md w-full">
-            <div class="text-center mb-4">
-                <div id="result-icon" class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4"></div>
-                <h3 class="text-xl font-bold" id="result-title">导入完成</h3>
-            </div>
-            
-            <div class="space-y-3 mb-6">
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-600">总记录数:</span>
-                    <span id="total-records" class="font-medium">0</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-600">成功导入:</span>
-                    <span id="success-records" class="font-medium text-green-600">0</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-600">导入失败:</span>
-                    <span id="failed-records" class="font-medium text-red-600">0</span>
-                </div>
-            </div>
-            
-            <div id="error-details" class="hidden mb-6 text-sm text-red-600 bg-red-50 p-3 rounded-lg max-h-40 overflow-y-auto">
-                <h4 class="font-medium mb-2">错误详情:</h4>
-                <ul id="error-list" class="list-disc pl-5 space-y-1">
-                    <!-- 错误详情将动态生成 -->
-                </ul>
-            </div>
-            
-            <div class="flex justify-center">
-                <button id="close-result-modal" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
-                    确定
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 模态框：添加管理员 -->
-    <div id="add-admin-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl p-6 max-w-md w-full">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">添加管理员</h3>
-                <button id="close-add-admin-modal" class="text-gray-500 hover:text-gray-700">
+    <!-- 管理员登录模态框（默认隐藏） -->
+    <div id="adminLoginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-primary">管理员登录</h3>
+                <button id="closeLoginModal" class="text-gray-500 hover:text-gray-700">
                     <i class="fa fa-times text-xl"></i>
                 </button>
             </div>
-            
-            <form id="add-admin-form" class="space-y-4">
+            <form id="adminLoginForm" class="space-y-4">
                 <div>
-                    <label for="new-admin-name" class="block text-sm font-medium text-gray-700 mb-1">姓名 <span class="text-red-500">*</span></label>
-                    <input type="text" id="new-admin-name" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                        placeholder="请输入管理员姓名">
+                    <label for="adminPhone" class="block text-gray-700 font-medium mb-2">账号（手机号码）</label>
+                    <input type="tel" id="adminPhone" name="adminPhone" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                           placeholder="请输入管理员账号">
                 </div>
-                
                 <div>
-                    <label for="new-admin-phone" class="block text-sm font-medium text-gray-700 mb-1">手机号码 <span class="text-red-500">*</span></label>
-                    <input type="tel" id="new-admin-phone" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                        placeholder="请输入手机号码">
+                    <label for="adminPassword" class="block text-gray-700 font-medium mb-2">密码</label>
+                    <input type="password" id="adminPassword" name="adminPassword" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                           placeholder="请输入密码">
                 </div>
-                
-                <div>
-                    <label for="new-admin-password" class="block text-sm font-medium text-gray-700 mb-1">密码 <span class="text-red-500">*</span></label>
-                    <input type="password" id="new-admin-password" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                        placeholder="请设置密码">
+                <div class="text-red-500 text-sm hidden" id="loginError">
+                    <i class="fa fa-exclamation-circle mr-1"></i>账号或密码错误，请重新输入
                 </div>
-                
-                <div class="pt-2 flex justify-end space-x-3">
-                    <button type="button" id="cancel-add-admin" class="px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-custom">
-                        取消
-                    </button>
-                    <button type="submit" class="px-5 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
-                        添加
-                    </button>
-                </div>
+                <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors duration-300 font-medium">
+                    <i class="fa fa-sign-in mr-2"></i>登录
+                </button>
             </form>
         </div>
     </div>
 
-    <!-- 模态框：修改密码 -->
-    <div id="change-password-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl p-6 max-w-md w-full">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">修改密码</h3>
-                <button id="close-change-password-modal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fa fa-times text-xl"></i>
-                </button>
-            </div>
-            
-            <form id="change-password-form" class="space-y-4">
-                <div>
-                    <label for="current-password" class="block text-sm font-medium text-gray-700 mb-1">当前密码 <span class="text-red-500">*</span></label>
-                    <input type="password" id="current-password" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                        placeholder="请输入当前密码">
-                </div>
-                
-                <div>
-                    <label for="new-password" class="block text-sm font-medium text-gray-700 mb-1">新密码 <span class="text-red-500">*</span></label>
-                    <input type="password" id="new-password" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                        placeholder="请输入新密码">
-                </div>
-                
-                <div>
-                    <label for="confirm-password" class="block text-sm font-medium text-gray-700 mb-1">确认新密码 <span class="text-red-500">*</span></label>
-                    <input type="password" id="confirm-password" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
-                        placeholder="请再次输入新密码">
-                </div>
-                
-                <div class="pt-2 flex justify-end space-x-3">
-                    <button type="button" id="cancel-change-password" class="px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-custom">
-                        取消
-                    </button>
-                    <button type="submit" class="px-5 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
-                        保存修改
-                    </button>
-                </div>
-            </form>
+    <!-- 底部 -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="mb-2">汝城县第三中学体艺处 主办</p>
+            <p class="text-gray-400 text-sm">© 202X 汝城县第三中学 版权所有</p>
         </div>
-    </div>
+    </footer>
 
-    <!-- 通知提示框 -->
-    <div id="toast-notification" class="fixed bottom-5 right-5 px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center z-50">
-        <i id="toast-icon" class="mr-3 text-xl"></i>
-        <span id="toast-message"></span>
-    </div>
-
+    <!-- JS脚本 -->
     <script>
-        // 初始化数据
-        function initializeData() {
-            // 检查是否已有管理员数据，如果没有则创建超级管理员
-            if (!localStorage.getItem('admins')) {
-                const superAdmin = [
-                    {
-                        id: 1,
-                        name: '超级管理员',
-                        phone: '15197550021',
-                        password: 'wulibo1029',
-                        role: 'super' // super 表示超级管理员，admin 表示普通管理员
-                    }
-                ];
-                localStorage.setItem('admins', JSON.stringify(superAdmin));
-            }
-            
-            // 检查是否已有报名数据，如果没有则初始化空数组
-            if (!localStorage.getItem('registrations')) {
-                localStorage.setItem('registrations', JSON.stringify([]));
-            }
-            
-            // 检查是否已有首页设置，如果没有则初始化
-            if (!localStorage.getItem('homepageSettings')) {
-                const defaultSettings = {
-                    title: '汝城县第三中学艺术节管理系统',
-                    subtitle: '展示艺术才华，绽放青春光彩，共创美好校园文化',
-                    events: [
-                        { id: 1, name: '独唱、独奏、独舞', deadline: '10月30日', time: '11月10日', location: '学校礼堂' },
-                        { id: 2, name: '书法大赛、绘画大赛', deadline: '10月25日', time: '11月5日', location: '美术教室' },
-                        { id: 3, name: '主持人大赛', deadline: '10月28日', time: '11月8日', location: '学校礼堂' },
-                        { id: 4, name: '综合大型节目、班级合唱比赛', deadline: '11月5日', time: '11月20日', location: '学校操场' }
-                    ]
-                };
-                localStorage.setItem('homepageSettings', JSON.stringify(defaultSettings));
-            }
-        }
-        
-        // 页面导航控制
-        function setupNavigation() {
-            // 移动端菜单切换
-            document.getElementById('mobile-menu-button').addEventListener('click', function() {
-                const mobileMenu = document.getElementById('mobile-menu');
-                mobileMenu.classList.toggle('hidden');
-            });
-            
-            // 导航链接 - 首页
-            const homeLinks = [
-                document.getElementById('nav-home'),
-                document.getElementById('mobile-nav-home')
-            ];
-            homeLinks.forEach(link => {
-                if (link) {
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        showPage('home-page');
-                        document.getElementById('mobile-menu').classList.add('hidden');
-                    });
-                }
-            });
-            
-            // 导航链接 - 报名页
-            const registerLinks = [
-                document.getElementById('nav-register'),
-                document.getElementById('mobile-nav-register'),
-                document.getElementById('go-register-btn')
-            ];
-            registerLinks.forEach(link => {
-                if (link) {
-                    link.addEventListener('click', function(e) {
-                        if (e) e.preventDefault();
-                        showPage('register-page');
-                        document.getElementById('mobile-menu').classList.add('hidden');
-                    });
-                }
-            });
-            
-            // 导航链接 - 管理员登录页
-            const adminLinks = [
-                document.getElementById('nav-admin'),
-                document.getElementById('mobile-nav-admin')
-            ];
-            adminLinks.forEach(link => {
-                if (link) {
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        showPage('admin-login-page');
-                        document.getElementById('mobile-menu').classList.add('hidden');
-                    });
-                }
-            });
-            
-            // 从报名页返回首页
-            document.getElementById('back-from-register').addEventListener('click', function() {
-                showPage('home-page');
-            });
-            
-            // 从登录页返回首页
-            document.getElementById('back-from-login').addEventListener('click', function() {
-                showPage('home-page');
-            });
-        }
-        
-        // 显示指定页面，隐藏其他页面
-        function showPage(pageId) {
-            const pages = ['home-page', 'register-page', 'admin-login-page', 'admin-page'];
-            pages.forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-            document.getElementById(pageId).classList.remove('hidden');
-        }
-        
-        // 设置报名表单提交
-        function setupRegistrationForm() {
-            document.getElementById('registration-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // 获取表单数据
-                const className = document.getElementById('class').value.trim();
-                const name = document.getElementById('name').value.trim();
-                const phone = document.getElementById('phone').value.trim();
-                const event = document.getElementById('event').value;
-                const group = document.getElementById('group').value;
-                const description = document.getElementById('description').value.trim();
-                
-                // 简单验证
-                if (!className || !name || !phone || !event || !group) {
-                    showToast('请填写所有必填字段', 'error');
-                    return;
-                }
-                
-                // 验证手机号码格式
-                if (!/^1[3-9]\d{9}$/.test(phone)) {
-                    showToast('请输入有效的手机号码', 'error');
-                    return;
-                }
-                
-                // 获取现有报名数据
-                const registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
-                
-                // 创建新报名记录
-                const newRegistration = {
-                    id: registrations.length > 0 ? Math.max(...registrations.map(r => r.id)) + 1 : 1,
-                    className,
-                    name,
-                    phone,
-                    event,
-                    group,
-                    description,
-                    timestamp: new Date().toISOString()
-                };
-                
-                // 保存新报名记录
-                registrations.push(newRegistration);
-                localStorage.setItem('registrations', JSON.stringify(registrations));
-                
-                // 重置表单
-                this.reset();
-                
-                // 显示成功提示
-                showToast('报名成功！', 'success');
-                
-                // 3秒后返回首页
-                setTimeout(() => {
-                    showPage('home-page');
-                }, 1500);
-            });
-        }
-        
-        // 设置管理员登录
-        function setupAdminLogin() {
-            // 快速登录表单（首页的管理员登录）
-            document.getElementById('quick-login-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const phone = document.getElementById('quick-phone').value.trim();
-                const password = document.getElementById('quick-password').value;
-                handleAdminLogin(phone, password);
-            });
-            
-            // 管理员登录页的登录表单
-            document.getElementById('admin-login-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const phone = document.getElementById('admin-phone').value.trim();
-                const password = document.getElementById('admin-password').value;
-                handleAdminLogin(phone, password);
-            });
-        }
-        
-        // 处理管理员登录
-        function handleAdminLogin(phone, password) {
-            try {
-                // 验证输入
-                if (!phone || !password) {
-                    showToast('请输入手机号码和密码', 'error');
-                    return;
-                }
-                
-                // 验证手机号码格式
-                if (!/^1[3-9]\d{9}$/.test(phone)) {
-                    showToast('请输入有效的手机号码', 'error');
-                    return;
-                }
-                
-                // 获取管理员列表
-                const admins = JSON.parse(localStorage.getItem('admins') || '[]');
-                
-                // 查找匹配的管理员
-                const admin = admins.find(a => a.phone === phone && a.password === password);
-                
-                if (admin) {
-                    // 保存当前登录的管理员信息
-                    localStorage.setItem('currentAdmin', JSON.stringify(admin));
-                    
-                    // 显示管理员页面
-                    showPage('admin-page');
-                    
-                    // 加载管理员页面数据
-                    loadAdminPageData();
-                    
-                    // 清空登录表单
-                    document.getElementById('quick-login-form').reset();
-                    document.getElementById('admin-login-form').reset();
-                    
-                    showToast(`登录成功，欢迎回来 ${admin.name}`, 'success');
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 显示/隐藏活动项目列表
+            const viewEventsBtn = document.getElementById('viewEventsBtn');
+            const eventsList = document.getElementById('eventsList');
+            viewEventsBtn.addEventListener('click', function() {
+                eventsList.classList.toggle('hidden');
+                if (!eventsList.classList.contains('hidden')) {
+                    viewEventsBtn.innerHTML = '<i class="fa fa-angle-up mr-2"></i>收起活动项目';
                 } else {
-                    showToast('手机号码或密码不正确', 'error');
+                    viewEventsBtn.innerHTML = '<i class="fa fa-list mr-2"></i>查看活动项目';
                 }
-            } catch (error) {
-                console.error('登录处理错误:', error);
-                showToast('登录过程中发生错误，请重试', 'error');
-            }
-        }
-        
-        // 加载管理员页面数据
-        function loadAdminPageData() {
-            try {
-                // 获取当前登录的管理员
-                const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin') || '{}');
-                
-                if (!currentAdmin || !currentAdmin.id) {
-                    showToast('未找到管理员信息，请重新登录', 'error');
-                    showPage('admin-login-page');
-                    return;
+            });
+
+            // 管理员登录模态框控制
+            const adminLoginBtn = document.getElementById('adminLoginBtn');
+            const adminLoginModal = document.getElementById('adminLoginModal');
+            const closeLoginModal = document.getElementById('closeLoginModal');
+            
+            adminLoginBtn.addEventListener('click', function() {
+                adminLoginModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // 禁止背景滚动
+            });
+            
+            closeLoginModal.addEventListener('click', function() {
+                adminLoginModal.classList.add('hidden');
+                document.body.style.overflow = ''; // 恢复背景滚动
+                document.getElementById('loginError').classList.add('hidden'); // 隐藏错误提示
+            });
+
+            // 点击模态框外部关闭
+            adminLoginModal.addEventListener('click', function(e) {
+                if (e.target === adminLoginModal) {
+                    adminLoginModal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                    document.getElementById('loginError').classList.add('hidden');
                 }
+            });
+
+            // 管理员登录表单提交
+            const adminLoginForm = document.getElementById('adminLoginForm');
+            adminLoginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const phone = document.getElementById('adminPhone').value.trim();
+                const password = document.getElementById('adminPassword').value.trim();
                 
-                // 更新管理员信息显示
-                document.getElementById('current-admin-name').textContent = currentAdmin.name || '管理员';
-                document.getElementById('admin-role-badge').textContent = 
-                    currentAdmin.role === 'super' ? '超级管理员' : '管理员';
+                // 验证超级管理员账号（实际项目中需对接后端）
+                const superAdminPhone = '15197550021';
+                const superAdminPassword = 'wulibo1029';
                 
-                // 加载报名信息
-                loadRegistrationData();
-                
-                // 加载管理员列表
-                loadAdminList();
-                
-                // 加载首页编辑数据
-                loadHomepageEditData();
-                
-                // 权限控制 - 只有超级管理员可以看到管理员管理菜单
-                const adminManagementBtn = document.querySelector('.admin-nav-btn[data-target="admin-management"]');
-                if (currentAdmin.role !== 'super') {
-                    adminManagementBtn.style.display = 'none';
+                if (phone === superAdminPhone && password === superAdminPassword) {
+                    // 登录成功：存储登录状态（实际项目中用后端Session/Cookie）
+                    localStorage.setItem('adminLoggedIn', 'true');
+                    localStorage.setItem('isSuperAdmin', 'true');
+                    localStorage.setItem('adminName', '超级管理员');
+                    window.location.href = 'admin.html'; // 跳转到管理页
                 } else {
-                    adminManagementBtn.style.display = 'flex';
-                }
-                
-                // 初始化筛选和批量删除功能
-                setupFilters();
-                setupBatchDelete();
-                
-            } catch (error) {
-                console.error('加载管理员页面数据错误:', error);
-                showToast('加载数据失败，请重新登录', 'error');
-                showPage('admin-login-page');
-            }
-        }
-        
-        // 设置管理员页面导航
-        function setupAdminNavigation() {
-            // 管理员菜单切换
-            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const target = this.getAttribute('data-target');
-                    const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin') || '{}');
-                    
-                    // 检查权限，如果是普通管理员访问管理员管理页面则拒绝
-                    if (target === 'admin-management' && currentAdmin.role !== 'super') {
-                        showToast('您没有权限访问此功能', 'error');
-                        return;
-                    }
-                    
-                    // 更新按钮样式
-                    document.querySelectorAll('.admin-nav-btn').forEach(b => {
-                        b.classList.remove('bg-primary/10', 'text-primary');
-                        b.classList.add('text-gray-700', 'hover:bg-gray-100');
-                    });
-                    this.classList.add('bg-primary/10', 'text-primary');
-                    this.classList.remove('text-gray-700', 'hover:bg-gray-100');
-                    
-                    // 显示对应内容
-                    document.querySelectorAll('.admin-content').forEach(content => {
-                        content.classList.add('hidden');
-                    });
-                    document.getElementById(target).classList.remove('hidden');
-                });
-            });
-            
-            // 退出登录
-            document.getElementById('logout-btn').addEventListener('click', function() {
-                // 清除当前管理员信息
-                localStorage.removeItem('currentAdmin');
-                
-                // 返回首页
-                showPage('home-page');
-                
-                showToast('已成功退出登录', 'info');
-            });
-        }
-        
-        // 设置筛选功能
-        function setupFilters() {
-            // 初始化班级筛选下拉框
-            populateClassFilter();
-            
-            // 筛选条件变化事件
-            document.getElementById('filter-class').addEventListener('change', applyFilters);
-            document.getElementById('filter-event').addEventListener('change', applyFilters);
-            document.getElementById('filter-group').addEventListener('change', applyFilters);
-            document.getElementById('search-registration').addEventListener('input', applyFilters);
-            
-            // 重置筛选按钮
-            document.getElementById('reset-filter').addEventListener('click', resetFilters);
-            document.getElementById('reset-filter-btn').addEventListener('click', resetFilters);
-        }
-        
-        // 填充班级筛选下拉框
-        function populateClassFilter() {
-            const registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
-            const classFilter = document.getElementById('filter-class');
-            
-            // 获取所有不重复的班级
-            const classes = [...new Set(registrations.map(reg => reg.className).filter(Boolean))];
-            
-            // 清空现有选项（保留"全部班级"）
-            while (classFilter.options.length > 1) {
-                classFilter.remove(1);
-            }
-            
-            // 添加班级选项
-            classes.forEach(className => {
-                const option = document.createElement('option');
-                option.value = className;
-                option.textContent = className;
-                classFilter.appendChild(option);
-            });
-        }
-        
-        // 应用筛选条件
-        function applyFilters() {
-            const registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
-            const classFilter = document.getElementById('filter-class').value;
-            const eventFilter = document.getElementById('filter-event').value;
-            const groupFilter = document.getElementById('filter-group').value;
-            const searchTerm = document.getElementById('search-registration').value.toLowerCase().trim();
-            
-            // 应用筛选
-            const filteredRegistrations = registrations.filter(reg => {
-                // 班级筛选
-                if (classFilter && reg.className !== classFilter) {
-                    return false;
-                }
-                
-                // 项目筛选
-                if (eventFilter && reg.event !== eventFilter) {
-                    return false;
-                }
-                
-                // 组别筛选
-                if (groupFilter && reg.group !== groupFilter) {
-                    return false;
-                }
-                
-                // 搜索词筛选
-                if (searchTerm && !(
-                    reg.className.toLowerCase().includes(searchTerm) ||
-                    reg.name.toLowerCase().includes(searchTerm) ||
-                    reg.phone.includes(searchTerm) ||
-                    reg.event.toLowerCase().includes(searchTerm) ||
-                    reg.group.toLowerCase().includes(searchTerm)
-                )) {
-                    return false;
-                }
-                
-                return true;
-            });
-            
-            // 更新导出计数
-            document.getElementById('export-count').textContent = filteredRegistrations.length;
-            
-            // 显示筛选结果
-            displayFilteredResults(filteredRegistrations);
-        }
-        
-        // 显示筛选结果
-        function displayFilteredResults(filteredRegistrations) {
-            const tableBody = document.getElementById('registration-table-body');
-            const noDataMsg = document.getElementById('no-registration-data');
-            const noFilterResultMsg = document.getElementById('no-filter-result');
-            
-            // 清空表格
-            tableBody.innerHTML = '';
-            
-            // 检查是否有数据
-            const allRegistrations = JSON.parse(localStorage.getItem('registrations') || '[]');
-            const hasNoData = allRegistrations.length === 0;
-            const hasNoFilterResult = !hasNoData && filteredRegistrations.length === 0;
-            
-            // 显示适当的提示信息
-            noDataMsg.classList.toggle('hidden', !hasNoData);
-            noFilterResultMsg.classList.toggle('hidden', !hasNoFilterResult);
-            
-            if (hasNoData || hasNoFilterResult) {
-                // 重置全选框和批量删除按钮
-                document.getElementById('select-all').checked = false;
-                updateBatchDeleteButton();
-                return;
-            }
-            
-            // 按时间倒序排序（最新的在前面）
-            filteredRegistrations.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            // 填充表格
-            filteredRegistrations.forEach(registration => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <input type="checkbox" class="registration-checkbox rounded border-gray-300 text-primary focus:ring-primary" data-id="${registration.id}">
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">${registration.id}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${registration.className}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${registration.name}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${registration.phone}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${registration.event}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs rounded-full ${registration.group === '专业组' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">
-                            ${registration.group}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">${formatDate(registration.timestamp)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex space-x-2">
-                            <button class="edit-registration text-blue-600 hover:text-blue-800" data-id="${registration.id}">
-                                <i class="fa fa-pencil"></i>
-                            </button>
-                            <button class="delete-registration text-red-600 hover:text-red-800" data-id="${registration.id}">
-                                <i class="fa fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-            
-            // 添加编辑和删除事件监听
-            document.querySelectorAll('.edit-registration').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = parseInt(this.getAttribute('data-id'));
-                    openEditRegistrationModal(id);
-                });
-            });
-            
-            document.querySelectorAll('.delete-registration').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = parseInt(this.getAttribute('data-id'));
-                    if (confirm('确定要删除这条报名信息吗？')) {
-                        deleteRegistration(id);
-                    }
-                });
-            });
-            
-            // 为每个复选框添加事件监听
-            document.querySelectorAll('.registration-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    // 检查是否所有复选框都被选中
-                    const allChecked = document.querySelectorAll('.registration-checkbox').length === 
-                                      document.querySelectorAll('.registration-checkbox:checked').length;
-                    document.getElementById('select-all').checked = allChecked;
-                    
-                    // 更新批量删除按钮状态
-                    updateBatchDeleteButton();
-                });
-            });
-            
-            // 重置全选框
-            document.getElementById('select-all').checked = false;
-            updateBatchDeleteButton();
-        }
-        
-        // 重置筛选条件
-        function resetFilters() {
-            document.getElementById('filter-class').value = '';
-            document.getElementById('filter-event').value = '';
-            document.getElementById('filter-group').value = '';
-            document.getElementById('search-registration').value = '';
-            
-            // 重新加载所有数据
-            loadRegistrationData();
-        }
-        
-        // 设置批量删除功能
-        function setupBatchDelete() {
-            // 全选复选框事件
-            document.getElementById('select-all').addEventListener('change', function() {
-                const isChecked = this.checked;
-                document.querySelectorAll('.registration-checkbox').forEach(checkbox => {
-                    checkbox.checked = isChecked;
-                });
-                updateBatchDeleteButton();
-            });
-            
-            // 批量删除按钮事件
-            document.getElementById('batch-delete-btn').addEventListener('click', function() {
-                const selectedCount = getSelectedCount();
-                if (selectedCount === 0) {
-                    showToast('请先选择要删除的记录', 'warning');
-                    return;
-                }
-                
-                if (confirm(`确定要删除选中的 ${selectedCount} 条记录吗？此操作不可撤销。`)) {
-                    deleteSelectedRegistrations();
+                    // 模拟普通管理员验证（实际需查数据库）
+                    // 此处仅为演示，实际需后端校验
+                    document.getElementById('loginError').classList.remove('hidden');
                 }
             });
-        }
-        
-        // 更新批量删除按钮状态
-        function updateBatchDeleteButton() {
-            const count = getSelectedCount();
-            const batchDeleteBtn = document.getElementById('batch-delete-btn');
-            const selectedCountEl = document.getElementById('selected-count');
-            
-            selectedCountEl.textContent = count;
-            
-            if (count > 0) {
-                batchDeleteBtn.removeAttribute('disabled');
-                batchDeleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            } else {
-                batchDeleteBtn.setAttribute('disabled', 'true');
-                batchDeleteBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-        }
-        
-        // 获取选中的记录数量
-        function getSelectedCount() {
-            return document.querySelectorAll('.registration-checkbox:checked').length;
-        }
-        
-        // 获取选中的记录ID
-        function getSelectedIds() {
-            const ids = [];
-            document.querySelectorAll('.registration-checkbox:checked').forEach(checkbox => {
-                ids.push(parseInt(checkbox.getAttribute('data-id')));
-            });
-            return ids;
-        }
-        
-        // 删除选中的记录
-        function deleteSelectedRegistrations() {
-            const selectedIds = getSelectedIds();
-            if (selectedIds.length === 0) return;
-            
-            let registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
-            const initialCount = registrations.length;
-            
-            // 过滤掉选中的记录
-            registrations = registrations.filter(reg => !selectedIds.includes(reg.id));
-            
-            // 保存更新后的数据
-            localStorage.setItem('registrations', JSON.stringify(registrations));
-            
-            // 重新应用筛选条件以刷新表格
-            applyFilters();
-            
-            // 更新班级筛选下拉框
-            populateClassFilter();
-            
-            // 显示提示信息
-            const deletedCount = initialCount - registrations.length;
-            showToast(`成功删除 ${deletedCount} 条记录`, 'success');
-        }
-        
-        // 加载报名信息数据
-        function loadRegistrationData() {
-            const registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
-            
-            // 更新导出计数
-            document.getElementById('export-count').textContent = registrations.length;
-            
-            // 显示所有数据（相当于没有筛选）
-            displayFilteredResults(registrations);
-            
-            // 更新班级筛选下拉框
-            populateClassFilter();
-        }
-        
-        // 格式化日期
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-        }
-        
-        // 设置批量导入功能（支持Excel格式）
-        function setupBatchImport() {
-            // 打开批量导入模态框
-            document.getElementById('batch-import-btn').addEventListener('click', function() {
-                // 重置模态框
-                document.getElementById('import-file').value = '';
-                document.getElementById('import-preview').classList.add('hidden');
-                document.getElementById('import-preview-header').innerHTML = '';
-                document.getElementById('import-preview-body').innerHTML = '';
-                
-                // 显示模态框
-                document.getElementById('batch-import-modal').classList.remove('hidden');
-            });
-            
-            // 关闭批量导入模态框
-            document.getElementById('close-batch-import-modal').addEventListener('click', function() {
-                document.getElementById('batch-import-modal').classList.add('hidden');
-            });
-            
-            document.getElementById('cancel-import').addEventListener('click', function() {
-                document.getElementById('batch-import-modal').classList.add('hidden');
-            });
-            
-            // 文件选择处理（Excel文件）
-            document.getElementById('import-file').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                // 验证文件类型
-                const fileExtension = file.name.split('.').pop().toLowerCase();
-                if (!['xls', 'xlsx'].includes(fileExtension)) {
-                    showToast('请上传Excel格式的文件（.xls或.xlsx）', 'error');
-                    return;
-                }
-                
-                // 读取Excel文件内容
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        
-                        // 获取第一个工作表
-                        const firstSheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[firstSheetName];
-                        
-                        // 转换为JSON
-                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                        
-                        if (jsonData.length < 1) {
-                            showToast('Excel文件内容为空', 'error');
-                            return;
-                        }
-                        
-                        // 解析Excel并显示预览
-                        parseAndPreviewExcel(jsonData);
-                    } catch (error) {
-                        console.error('文件读取错误:', error);
-                        showToast('文件解析错误，请检查文件格式是否正确', 'error');
-                    }
-                };
-                reader.readAsArrayBuffer(file);
-            });
-            
-            // 确认导入
-            document.getElementById('confirm-import').addEventListener('click', function() {
-                const fileInput = document.getElementById('import-file');
-                if (!fileInput.files[0]) {
-                    showToast('请先选择Excel文件', 'error');
-                    return;
-                }
-                
-                // 读取并导入文件
-                const file = fileInput.files[0];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        
-                        // 获取第一个工作表
-                        const firstSheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[firstSheetName];
-                        
-                        // 转换为JSON
-                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                        
-                        if (jsonData.length < 1) {
-                            showToast('Excel文件内容为空', 'error');
-                            return;
-                        }
-                        
-                        // 执行导入
-                        importExcelData(jsonData);
-                        
-                        // 关闭导入模态框
-                        document.getElementById('batch-import-modal').classList.add('hidden');
-                    } catch (error) {
-                        console.error('导入错误:', error);
-                        showToast('导入过程中发生错误', 'error');
-                    }
-                };
-                reader.readAsArrayBuffer(file);
-            });
-            
-            // 关闭结果模态框
-            document.getElementById('close-result-modal').addEventListener('click', function() {
-                document.getElementById('import-result-modal').classList.add('hidden');
-            });
-        }
-        
-        // 解析Excel并显示预览
-        function parseAndPreviewExcel(data) {
-            // 表头是第一行
-            const headers = data[0].map(header => String(header).trim().toLowerCase());
-            
-            // 检查必要的列
-            const requiredColumns = ['班级', '姓名', '联系电话', '报名项目', '组别'];
-            const missingColumns = requiredColumns.filter(col => 
-                !headers.some(header => String(header).includes(col))
-            );
-            
-            if (missingColumns.length > 0) {
-                showToast(`Excel文件缺少必要的列: ${missingColumns.join(', ')}`, 'error');
-                return;
-            }
-            
-            // 显示预览
-            const headerRow = document.getElementById('import-preview-header');
-            headerRow.innerHTML = '';
-            headers.forEach(header => {
-                const th = document.createElement('th');
-                th.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
-                th.textContent = header;
-                headerRow.appendChild(th);
-            });
-            
-            // 显示前5行数据（跳过表头）
-            const body = document.getElementById('import-preview-body');
-            body.innerHTML = '';
-            const previewRows = data.slice(1, Math.min(6, data.length)); // 取前5行数据
-            
-            previewRows.forEach((row, index) => {
-                const tr = document.createElement('tr');
-                tr.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
-                
-                row.forEach((value, i) => {
-                    const td = document.createElement('td');
-                    td.className = 'px-3 py-2 text-sm text-gray-900';
-                    td.textContent = value !== undefined ? String(value) : '';
-                    tr.appendChild(td);
-                });
-                
-                body.appendChild(tr);
-            });
-            
-            // 显示预览区域
-            document.getElementById('import-preview').classList.remove('hidden');
-        }
-        
-        // 导入Excel数据
-        function importExcelData(data) {
-            // 表头是第一行
-            const headers = data[0].map(header => String(header).trim().toLowerCase());
-            
-            // 查找列索引
-            const classIndex = headers.findIndex(header => String(header).includes('班级'));
-            const nameIndex = headers.findIndex(header => String(header).includes('姓名'));
-            const phoneIndex = headers.findIndex(header => String(header).includes('电话'));
-            const eventIndex = headers.findIndex(header => String(header).includes('项目'));
-            const groupIndex = headers.findIndex(header => String(header).includes('组别'));
-            const descIndex = headers.findIndex(header => String(header).includes('简介'));
-            
-            // 准备导入结果
-            let total = 0;
-            let success = 0;
-            let failed = 0;
-            const errors = [];
-            const registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
-            const newRegistrations = [];
-            
-            // 处理每一行数据（从第二行开始，跳过表头）
-            for (let i = 1; i < data.length; i++) {
-                total++;
-                const rowNumber = i + 1; // 行号从1开始（包含表头）
-                const rowData = data[i];
-                
-                try {
-                    // 验证必要字段
-                    if (classIndex === -1 || !rowData[classIndex] || String(rowData[classIndex]).trim() === '') {
-                        throw new Error('班级不能为空');
-                    }
-                    
-                    if (nameIndex === -1 || !rowData[nameIndex] || String(rowData[nameIndex]).trim() === '') {
-                        throw new Error('姓名不能为空');
-                    }
-                    
-                    if (phoneIndex === -1 || !rowData[phoneIndex] || String(rowData[phoneIndex]).trim() === '') {
-                        throw new Error('联系电话不能为空');
-                    }
-                    
-                    // 验证手机号码格式
-                    const phone = String(rowData[phoneIndex]).trim();
-                    if (!/^1[3-9]\d{9}$/.test(phone)) {
-                        throw new Error('联系电话格式不正确');
-                    }
-                    
-                    if (eventIndex === -1 || !rowData[eventIndex] || String(rowData[eventIndex]).trim() === '') {
-                        throw new Error('报名项目不能为空');
-                    }
-                    
-                    if (groupIndex === -1 || !rowData[groupIndex] || String(rowData[groupIndex]).trim() === '') {
-                        throw new Error('组别不能为空');
-                    }
-                    
-                    // 验证组别是否有效
-                    const group = String(rowData[groupIndex]).trim();
-                    if (group !== '专业组' && group !== '非专业组') {
-                        throw new Error('组别必须是"专业组"或"非专业组"');
-                    }
-                    
-                    // 创建新报名记录
-                    const newRegistration = {
-                        id: registrations.length + newRegistrations.length + 1,
-                        className: String(rowData[classIndex]).trim(),
-                        name: String(rowData[nameIndex]).trim(),
-                        phone: phone,
-                        event: String(rowData[eventIndex]).trim(),
-                        group: group,
-                        description: descIndex !== -1 && rowData[descIndex] ? String(rowData[descIndex]).trim() : '',
-                        timestamp: new Date().toISOString()
-                    };
-                    
-                    newRegistrations.push(newRegistration);
-                    success++;
-                } catch (error) {
-                    failed++;
-                    errors.push(`第 ${rowNumber} 行: ${error.message}`);
-                }
-            }
-            
-            // 保存成功导入的数据
-            if (newRegistrations.length > 0) {
-                registrations.push(...newRegistrations);
-                localStorage.setItem('registrations', JSON.stringify(registrations));
-                
-                // 重新应用筛选条件以刷新表格
-                applyFilters();
-                
-                // 更新班级筛选下拉框
-                populateClassFilter();
-            }
-            
-            // 显示导入结果
-            document.getElementById('total-records').textContent = total;
-            document.getElementById('success-records').textContent = success;
-            document.getElementById('failed-records').textContent = failed;
-            
-            // 显示错误详情（如果有）
-            const errorDetails = document.getElementById('error-details');
-            const errorList = document.getElementById('error-list');
-            
-            if (failed > 0) {
-                errorList.innerHTML = '';
-                errors.forEach(error => {
-                    const li = document.createElement('li');
-                    li.textContent = error;
-                    errorList.appendChild(li);
-                });
-                errorDetails.classList.remove('hidden');
-            } else {
-                errorDetails.classList.add('hidden');
-            }
-            
-            // 设置结果图标
-            const resultIcon = document.getElementById('result-icon');
-            if (failed === 0) {
-                resultIcon.className = 'inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-500 mb-4';
-                resultIcon.innerHTML = '<i class="fa fa-check text-2xl"></i>';
-                document.getElementById('result-title').textContent = '全部导入成功';
-            } else if (success === 0) {
-                resultIcon.className = 'inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 text-red-500 mb-4';
-                resultIcon.innerHTML = '<i class="fa fa-times text-2xl"></i>';
-                document.getElementById('result-title').textContent = '导入失败';
-            } else {
-                resultIcon.className = 'inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-100 text-yellow-500 mb-4';
-                resultIcon.innerHTML = '<i class="fa fa-exclamation-triangle text-2xl"></i>';
-                document.getElementById('result-title').textContent = '部分导入成功';
-            }
-            
-            // 显示结果模态框
-            document.getElementById('import-result-modal').classList.remove('hidden');
-        }
-        
-        // 设置报名信息管理功能
-        function setupRegistrationManagement() {
-            // 添加报名按钮
-            document.getElementById('add-registration-btn').addEventListener('click', function() {
-                // 重置表单
-                document.getElementById('registration-edit-form').reset();
-                document.getElementById('registration-id').value = '';
-                document.getElementById('registration-modal-title').textContent = '添加报名信息';
-                
-                // 显示模态框
-                document.getElementById('registration-modal').classList.remove('hidden');
-            });
-            
-            // 关闭模态框
-            document.getElementById('close-registration-modal').addEventListener('click', function() {
-                document.getElementById('registration-modal').classList.add('hidden');
-            });
-            
-            document.getElementById('cancel-registration').addEventListener('click', function() {
-                document.getElementById('registration-modal').classList.add('hidden');
-            });
-            
-            // 保存报名信息
-            document.getElementById('registration-edit-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const id = document.getElementById('registration-id').value;
-                const className = document.getElementById('edit-class').value.trim();
-                const name = document.getElementById('edit-name').value.trim();
-                const phone = document.getElementById('edit-phone').value.trim();
-                const event = document.getElementById('edit-event').value;
-                const group = document.getElementById('edit-group').value;
-                const description = document.getElementById('edit-description').value.trim();
-                
-                // 简单验证
-                if (!className || !name || !phone || !event || !group) {
-                    showToast('请填写所有必填字段', 'error');
-                    return;
-                }
-                
-                // 验证手机号码格式
-                if (!/^1[3-9]\d{9}$/.test(phone)) {
-                    showToast('请输入有效的手机号码', 'error');
-                    return;
-                }
-                
-                const registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
-                
-                if (id) {
-                    // 编辑现有记录
-                    const index = registrations.findIndex(r => r.id === parseInt(id));
-                    if (index !== -1) {
-                        registrations[index] = {
-                            ...registrations[index],
-                            className,
-                            name,
-                            phone,
-                            event,
-                            group,
-                            description
-                        };
-                        localStorage.setItem('registrations', JSON.stringify(registrations));
-                        showToast('报名信息已更新', 'success');
-                    }
-                } else {
-                    // 添加新记录
-                    const newRegistration = {
-                        id: registrations.length > 0 ? Math.max(...registrations.map(r => r.id)) + 1 : 1,
-                        className,
-                        name,
-                        phone,
-                        event,
-                        group,
-                        description,
-                        timestamp: new Date().toISOString()
-                    };
-                    
-                    registrations.push(newRegistration);
-                    localStorage.setItem('registrations', JSON.stringify(registrations));
-                    showToast('报名信息已添加', 'success');
-                }
-                
-                // 关闭模态框并重新应用筛选条件
-                document.getElementById('registration-modal').classList.add('hidden');
-                applyFilters();
-                
-                // 更新班级筛选下拉框
-                populateClassFilter();
-            });
-            
-            // 导出Excel文件（只导出筛选结果）
-            document.getElementById('export-csv-btn').addEventListener('click', function() {
-                exportFilteredResultsToExcel();
-            });
-        }
-        
-        // 导出筛选结果到Excel
-        function exportFilteredResultsToExcel() {
-            try {
-                // 获取筛选条件
-                const classFilter = document.getElementById('filter-class').value;
-                const eventFilter = document.getElementById('filter-event').value;
-                const groupFilter = document.getElementById('filter-group').value;
-                const searchTerm = document.getElementById('search-registration').value.toLowerCase().trim();
-                
-                // 获取所有数据并应用筛选条件
-                const allRegistrations = JSON.parse(localStorage.getItem('registrations') || '[]');
-                const filteredRegistrations = allRegistrations.filter(reg => {
-                    // 应用相同的筛选逻辑
-                    if (classFilter && reg.className !== classFilter) return false;
-                    if (eventFilter && reg.event !== eventFilter) return false;
-                    if (groupFilter && reg.group !== groupFilter) return false;
-                    
-                    if (searchTerm && !(
-                        reg.className.toLowerCase().includes(searchTerm) ||
-                        reg.name.toLowerCase().includes(searchTerm) ||
-                        reg.phone.includes(searchTerm) ||
-                        reg.event.toLowerCase().includes(searchTerm) ||
-                        reg.group.toLowerCase().includes(searchTerm)
-                    )) return false;
-                    
-                    return true;
-                });
-                
-                if (filteredRegistrations.length === 0) {
-                    showToast('没有符合筛选条件的数据可导出', 'warning');
-                    return;
-                }
-                
-                // 准备Excel数据
-                const header = ['ID', '班级', '姓名', '联系电话', '报名项目', '组别', '报名时间', '作品/节目简介'];
-                const data = [header];
-                
-                // 按ID排序
-                filteredRegistrations.sort((a, b) => a.id - b.id);
-                
-                filteredRegistrations.forEach(reg => {
-                    data.push([
-                        reg.id,
-                        reg.className || '',
-                        reg.name || '',
-                        reg.phone || '',
-                        reg.event || '',
-                        reg.group || '',
-                        formatDate(reg.timestamp) || '',
-                        reg.description || ''
-                    ]);
-                });
-                
-                // 创建工作簿和工作表
-                const worksheet = XLSX.utils.aoa_to_sheet(data);
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "报名信息");
-                
-                // 生成包含筛选条件的文件名
-                let filterInfo = [];
-                if (classFilter) filterInfo.push(`班级_${classFilter}`);
-                if (eventFilter) filterInfo.push(`项目_${eventFilter}`);
-                if (groupFilter) filterInfo.push(`组别_${groupFilter}`);
-                if (searchTerm) filterInfo.push(`搜索_${searchTerm}`);
-                
-                const filterStr = filterInfo.length > 0 ? `筛选_${filterInfo.join('_')}_` : '';
-                const fileName = `汝城三中艺术节报名信息_${filterStr}${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`;
-                
-                // 导出文件
-                XLSX.writeFile(workbook, fileName);
-                
-                showToast(`成功导出 ${filteredRegistrations.length} 条筛选结果到Excel`, 'success');
-            } catch (error) {
-                console.error('Excel导出错误:', error);
-                showToast(`导出失败: ${error.message}`, 'error');
-            }
-        }
-        
-        // 打开编辑报名信息模态框
-        function openEditRegistrationModal(id) {
-            const registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
-            const registration = registrations.find(r => r.id === id);
-            
-            if (registration) {
-                document.getElementById('registration-id').value = registration.id;
-                document.getElementById('edit-class').value = registration.className;
-                document.getElementById('edit-name').value = registration.name;
-                document.getElementById('edit-phone').value = registration.phone;
-                document.getElementById('edit-event').value = registration.event;
-                document.getElementById('edit-group').value = registration.group;
-                document.getElementById('edit-description').value = registration.description || '';
-                
-                document.getElementById('registration-modal-title').textContent = '编辑报名信息';
-                document.getElementById('registration-modal').classList.remove('hidden');
-            }
-        }
-        
-        // 删除报名信息
-        function deleteRegistration(id) {
-            const registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
-            const updatedRegistrations = registrations.filter(r => r.id !== id);
-            
-            localStorage.setItem('registrations', JSON.stringify(updatedRegistrations));
-            
-            // 重新应用筛选条件以刷新表格
-            applyFilters();
-            
-            // 更新班级筛选下拉框
-            populateClassFilter();
-            
-            showToast('报名信息已删除', 'success');
-        }
-        
-        // 加载管理员列表
-        function loadAdminList() {
-            const admins = JSON.parse(localStorage.getItem('admins') || '[]');
-            const tableBody = document.getElementById('admin-table-body');
-            const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin') || '{}');
-            
-            // 清空表格
-            tableBody.innerHTML = '';
-            
-            // 填充表格
-            admins.forEach(admin => {
-                const row = document.createElement('tr');
-                // 根据当前管理员角色决定是否显示操作按钮
-                const showActions = currentAdmin.role === 'super' && admin.role !== 'super';
-                
-                row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap">${admin.id}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${admin.name}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${admin.phone}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs rounded-full ${admin.role === 'super' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">
-                            ${admin.role === 'super' ? '超级管理员' : '管理员'}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex space-x-2">
-                            ${showActions ? `
-                                <button class="reset-admin-password text-yellow-600 hover:text-yellow-800" data-id="${admin.id}">
-                                    <i class="fa fa-refresh"></i> 重置密码
-                                </button>
-                                <button class="delete-admin text-red-600 hover:text-red-800" data-id="${admin.id}">
-                                    <i class="fa fa-trash"></i> 删除
-                                </button>
-                            ` : ''}
-                        </div>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-            
-            // 添加重置密码和删除事件监听
-            document.querySelectorAll('.reset-admin-password').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = parseInt(this.getAttribute('data-id'));
-                    resetAdminPassword(id);
-                });
-            });
-            
-            document.querySelectorAll('.delete-admin').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = parseInt(this.getAttribute('data-id'));
-                    if (confirm('确定要删除这个管理员吗？')) {
-                        deleteAdmin(id);
-                    }
-                });
-            });
-        }
-        
-        // 设置管理员管理功能
-        function setupAdminManagement() {
-            // 添加管理员按钮点击事件
-            document.getElementById('add-admin-btn').addEventListener('click', function() {
-                const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin') || '{}');
-                
-                // 检查权限，只有超级管理员可以添加管理员
-                if (currentAdmin.role !== 'super') {
-                    showToast('您没有权限添加管理员', 'error');
-                    return;
-                }
-                
-                // 重置表单
-                document.getElementById('add-admin-form').reset();
-                
-                // 显示模态框
-                document.getElementById('add-admin-modal').classList.remove('hidden');
-            });
-            
-            // 关闭添加管理员模态框
-            document.getElementById('close-add-admin-modal').addEventListener('click', function() {
-                document.getElementById('add-admin-modal').classList.add('hidden');
-            });
-            
-            document.getElementById('cancel-add-admin').addEventListener('click', function() {
-                document.getElementById('add-admin-modal').classList.add('hidden');
-            });
-            
-            // 添加管理员表单提交
-            document.getElementById('add-admin-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin') || '{}');
-                
-                // 检查权限，只有超级管理员可以添加管理员
-                if (currentAdmin.role !== 'super') {
-                    showToast('您没有权限添加管理员', 'error');
-                    document.getElementById('add-admin-modal').classList.add('hidden');
-                    return;
-                }
-                
-                const name = document.getElementById('new-admin-name').value.trim();
-                const phone = document.getElementById('new-admin-phone').value.trim();
-                const password = document.getElementById('new-admin-password').value;
-                
-                // 简单验证
-                if (!name || !phone || !password) {
-                    showToast('请填写所有必填字段', 'error');
-                    return;
-                }
-                
-                // 验证手机号码格式
-                if (!/^1[3-9]\d{9}$/.test(phone)) {
-                    showToast('请输入有效的手机号码', 'error');
-                    return;
-                }
-                
-                // 检查手机号码是否已存在
-                const admins = JSON.parse(localStorage.getItem('admins') || '[]');
-                if (admins.some(a => a.phone === phone)) {
-                    showToast('该手机号码已被注册为管理员', 'error');
-                    return;
-                }
-                
-                // 创建新管理员（默认为普通管理员）
-                const newAdmin = {
-                    id: admins.length > 0 ? Math.max(...admins.map(a => a.id)) + 1 : 1,
-                    name,
-                    phone,
-                    password,
-                    role: 'admin' // 默认为普通管理员
-                };
-                
-                // 保存新管理员
-                admins.push(newAdmin);
-                localStorage.setItem('admins', JSON.stringify(admins));
-                
-                // 关闭模态框并刷新列表
-                document.getElementById('add-admin-modal').classList.add('hidden');
-                loadAdminList();
-                
-                showToast('新管理员已添加', 'success');
-            });
-        }
-        
-        // 重置管理员密码
-        function resetAdminPassword(id) {
-            const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin') || '{}');
-            
-            // 只有超级管理员可以重置密码
-            if (currentAdmin.role !== 'super') {
-                showToast('只有超级管理员可以重置密码', 'error');
-                return;
-            }
-            
-            const admins = JSON.parse(localStorage.getItem('admins') || '[]');
-            const index = admins.findIndex(a => a.id === id);
-            
-            if (index !== -1) {
-                // 重置密码为默认值 rcsztyc
-                admins[index].password = 'rcsztyc';
-                localStorage.setItem('admins', JSON.stringify(admins));
-                loadAdminList();
-                showToast('管理员密码已重置为默认值 rcsztyc', 'success');
-            }
-        }
-        
-        // 删除管理员
-        function deleteAdmin(id) {
-            const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin') || '{}');
-            
-            // 只有超级管理员可以删除管理员
-            if (currentAdmin.role !== 'super') {
-                showToast('只有超级管理员可以删除管理员', 'error');
-                return;
-            }
-            
-            const admins = JSON.parse(localStorage.getItem('admins') || '[]');
-            const updatedAdmins = admins.filter(a => a.id !== id);
-            
-            // 不能删除最后一个超级管理员
-            if (updatedAdmins.filter(a => a.role === 'super').length === 0) {
-                showToast('不能删除最后一个超级管理员', 'error');
-                return;
-            }
-            
-            localStorage.setItem('admins', JSON.stringify(updatedAdmins));
-            loadAdminList();
-            showToast('管理员已删除', 'success');
-        }
-        
-        // 加载首页编辑数据
-        function loadHomepageEditData() {
-            const settings = JSON.parse(localStorage.getItem('homepageSettings') || '{}');
-            
-            // 填充表单
-            document.getElementById('homepage-title').value = settings.title || '';
-            document.getElementById('homepage-subtitle').value = settings.subtitle || '';
-            
-            // 加载活动安排
-            renderEventScheduleEditor(settings.events || []);
-        }
-        
-        // 渲染活动安排编辑器
-        function renderEventScheduleEditor(events) {
-            const container = document.getElementById('event-schedule-editor');
-            container.innerHTML = '';
-            
-            if (events.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-sm">暂无活动安排，请点击"添加活动"按钮添加</p>';
-                return;
-            }
-            
-            events.forEach((event, index) => {
-                const eventDiv = document.createElement('div');
-                eventDiv.className = 'border border-gray-200 rounded-lg p-4 mb-4 relative hover:shadow-md transition-custom';
-                eventDiv.innerHTML = `
-                    <button type="button" class="delete-event absolute top-3 right-3 p-1.5 text-gray-500 rounded-full delete-btn-hover" data-index="${index}" title="删除活动">
-                        <i class="fa fa-trash-o"></i>
-                    </button>
-                    <div class="grid md:grid-cols-4 gap-4">
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">活动名称</label>
-                            <input type="text" class="event-name w-full px-3 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-primary focus:border-primary" value="${event.name || ''}">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">报名截止日期</label>
-                            <input type="text" class="event-deadline w-full px-3 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-primary focus:border-primary" value="${event.deadline || ''}">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">比赛时间</label>
-                            <input type="text" class="event-time w-full px-3 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-primary focus:border-primary" value="${event.time || ''}">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">地点</label>
-                            <input type="text" class="event-location w-full px-3 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-primary focus:border-primary" value="${event.location || ''}">
-                        </div>
-                    </div>
-                `;
-                container.appendChild(eventDiv);
-            });
-            
-            // 添加删除事件监听，带确认提示
-            document.querySelectorAll('.delete-event').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const index = parseInt(this.getAttribute('data-index'));
-                    // 获取当前活动名称用于确认提示
-                    const eventName = this.closest('div').querySelector('.event-name').value || '此活动';
-                    
-                    if (confirm(`确定要删除"${eventName}"吗？`)) {
-                        const settings = JSON.parse(localStorage.getItem('homepageSettings') || '{}');
-                        settings.events = settings.events.filter((_, i) => i !== index);
-                        localStorage.setItem('homepageSettings', JSON.stringify(settings));
-                        renderEventScheduleEditor(settings.events || []);
-                        showToast(`"${eventName}"已删除`, 'success');
-                    }
-                });
-            });
-        }
-        
-        // 设置首页编辑功能
-        function setupHomepageEdit() {
-            // 添加活动按钮
-            document.getElementById('add-event-btn').addEventListener('click', function() {
-                const settings = JSON.parse(localStorage.getItem('homepageSettings') || '{}');
-                const events = settings.events || [];
-                
-                // 添加新活动
-                events.push({
-                    id: events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1,
-                    name: '',
-                    deadline: '',
-                    time: '',
-                    location: ''
-                });
-                
-                settings.events = events;
-                localStorage.setItem('homepageSettings', JSON.stringify(settings));
-                renderEventScheduleEditor(events);
-                
-                // 滚动到最后一个活动并聚焦
-                setTimeout(() => {
-                    const lastEvent = document.querySelector('#event-schedule-editor > div:last-child');
-                    if (lastEvent) {
-                        lastEvent.scrollIntoView({ behavior: 'smooth' });
-                        lastEvent.querySelector('.event-name').focus();
-                    }
-                }, 100);
-            });
-            
-            // 保存首页设置
-            document.getElementById('homepage-edit-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const title = document.getElementById('homepage-title').value.trim();
-                const subtitle = document.getElementById('homepage-subtitle').value.trim();
-                
-                // 收集活动安排数据
-                const eventElements = document.querySelectorAll('#event-schedule-editor > div');
-                const events = [];
-                
-                eventElements.forEach((el, index) => {
-                    const name = el.querySelector('.event-name').value.trim();
-                    const deadline = el.querySelector('.event-deadline').value.trim();
-                    const time = el.querySelector('.event-time').value.trim();
-                    const location = el.querySelector('.event-location').value.trim();
-                    
-                    if (name) { // 只保存有名称的活动
-                        events.push({
-                            id: index + 1,
-                            name,
-                            deadline,
-                            time,
-                            location
-                        });
-                    }
-                });
-                
-                // 保存设置
-                const settings = { title, subtitle, events };
-                localStorage.setItem('homepageSettings', JSON.stringify(settings));
-                
-                // 更新首页显示
-                updateHomepageDisplay();
-                
-                showToast('首页信息已更新', 'success');
-            });
-        }
-        
-        // 更新首页显示
-        function updateHomepageDisplay() {
-            const settings = JSON.parse(localStorage.getItem('homepageSettings') || '{}');
-            
-            // 更新标题
-            document.querySelector('header h1').textContent = settings.title || '汝城县第三中学艺术节管理系统';
-            
-            // 更新副标题
-            const subtitleElement = document.querySelector('#home-page .bg-gradient-to-r p');
-            if (subtitleElement) {
-                subtitleElement.textContent = settings.subtitle || '展示艺术才华，绽放青春光彩，共创美好校园文化';
-            }
-            
-            // 更新活动安排表格
-            const scheduleBody = document.getElementById('event-schedule');
-            scheduleBody.innerHTML = '';
-            
-            if (settings.events && settings.events.length > 0) {
-                settings.events.forEach(event => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap">${event.name}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${event.deadline || '-'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${event.time || '-'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${event.location || '-'}</td>
-                    `;
-                    scheduleBody.appendChild(row);
-                });
-            } else {
-                const emptyRow = document.createElement('tr');
-                emptyRow.innerHTML = `
-                    <td colspan="4" class="px-6 py-8 text-center text-gray-500">
-                        暂无活动安排
-                    </td>
-                `;
-                scheduleBody.appendChild(emptyRow);
-            }
-        }
-        
-        // 设置修改密码功能
-        function setupChangePassword() {
-            // 打开修改密码模态框
-            document.getElementById('change-password-btn').addEventListener('click', function() {
-                // 重置表单
-                document.getElementById('change-password-form').reset();
-                
-                // 显示模态框
-                document.getElementById('change-password-modal').classList.remove('hidden');
-            });
-            
-            // 关闭修改密码模态框
-            document.getElementById('close-change-password-modal').addEventListener('click', function() {
-                document.getElementById('change-password-modal').classList.add('hidden');
-            });
-            
-            document.getElementById('cancel-change-password').addEventListener('click', function() {
-                document.getElementById('change-password-modal').classList.add('hidden');
-            });
-            
-            // 提交修改密码表单
-            document.getElementById('change-password-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const currentPassword = document.getElementById('current-password').value;
-                const newPassword = document.getElementById('new-password').value;
-                const confirmPassword = document.getElementById('confirm-password').value;
-                
-                // 验证
-                if (!currentPassword || !newPassword || !confirmPassword) {
-                    showToast('请填写所有字段', 'error');
-                    return;
-                }
-                
-                if (newPassword !== confirmPassword) {
-                    showToast('两次输入的新密码不一致', 'error');
-                    return;
-                }
-                
-                if (newPassword.length < 6) {
-                    showToast('密码长度不能少于6位', 'error');
-                    return;
-                }
-                
-                // 获取当前管理员和管理员列表
-                const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin') || '{}');
-                const admins = JSON.parse(localStorage.getItem('admins') || '[]');
-                
-                // 验证当前密码
-                const adminIndex = admins.findIndex(a => a.id === currentAdmin.id);
-                if (adminIndex === -1 || admins[adminIndex].password !== currentPassword) {
-                    showToast('当前密码不正确', 'error');
-                    return;
-                }
-                
-                // 更新密码
-                admins[adminIndex].password = newPassword;
-                localStorage.setItem('admins', JSON.stringify(admins));
-                
-                // 更新当前管理员信息
-                currentAdmin.password = newPassword;
-                localStorage.setItem('currentAdmin', JSON.stringify(currentAdmin));
-                
-                // 关闭模态框
-                document.getElementById('change-password-modal').classList.add('hidden');
-                
-                showToast('密码已成功修改', 'success');
-            });
-        }
-        
-        // 显示提示信息
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast-notification');
-            const icon = document.getElementById('toast-icon');
-            const messageElement = document.getElementById('toast-message');
-            
-            // 设置图标和样式
-            switch (type) {
-                case 'success':
-                    icon.className = 'fa fa-check-circle text-green-500 mr-3 text-xl';
-                    toast.className = 'fixed bottom-5 right-5 px-6 py-3 rounded-lg shadow-lg transform translate-y-0 opacity-100 transition-all duration-300 flex items-center z-50 bg-green-50 border-l-4 border-green-500';
-                    break;
-                case 'error':
-                    icon.className = 'fa fa-exclamation-circle text-red-500 mr-3 text-xl';
-                    toast.className = 'fixed bottom-5 right-5 px-6 py-3 rounded-lg shadow-lg transform translate-y-0 opacity-100 transition-all duration-300 flex items-center z-50 bg-red-50 border-l-4 border-red-500';
-                    break;
-                case 'warning':
-                    icon.className = 'fa fa-exclamation-triangle text-yellow-500 mr-3 text-xl';
-                    toast.className = 'fixed bottom-5 right-5 px-6 py-3 rounded-lg shadow-lg transform translate-y-0 opacity-100 transition-all duration-300 flex items-center z-50 bg-yellow-50 border-l-4 border-yellow-500';
-                    break;
-                default:
-                    icon.className = 'fa fa-info-circle text-blue-500 mr-3 text-xl';
-                    toast.className = 'fixed bottom-5 right-5 px-6 py-3 rounded-lg shadow-lg transform translate-y-0 opacity-100 transition-all duration-300 flex items-center z-50 bg-blue-50 border-l-4 border-blue-500';
-            }
-            
-            // 设置消息
-            messageElement.textContent = message;
-            
-            // 3秒后隐藏
-            setTimeout(() => {
-                toast.className = 'fixed bottom-5 right-5 px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center z-50';
-            }, 3000);
-        }
-        
-        // 检查是否有管理员已登录，如果有则直接进入管理员页面
-        function checkAdminLogin() {
-            const currentAdmin = localStorage.getItem('currentAdmin');
-            if (currentAdmin) {
-                try {
-                    // 验证管理员是否仍然存在
-                    const admins = JSON.parse(localStorage.getItem('admins') || '[]');
-                    const parsedAdmin = JSON.parse(currentAdmin);
-                    const adminExists = admins.some(a => a.id === parsedAdmin.id && a.password === parsedAdmin.password);
-                    
-                    if (adminExists) {
-                        showPage('admin-page');
-                        loadAdminPageData();
-                    } else {
-                        // 管理员不存在或密码已更改，清除登录状态
-                        localStorage.removeItem('currentAdmin');
-                        showToast('登录信息已过期，请重新登录', 'info');
-                    }
-                } catch (error) {
-                    console.error('检查管理员登录状态错误:', error);
-                    localStorage.removeItem('currentAdmin');
-                }
-            }
-        }
-        
-        // 初始化应用
-        function initializeApp() {
-            initializeData();
-            setupNavigation();
-            setupRegistrationForm();
-            setupAdminLogin();
-            setupAdminNavigation();
-            setupRegistrationManagement();
-            setupBatchImport(); // 支持Excel格式的批量导入功能
-            setupAdminManagement();
-            setupHomepageEdit();
-            setupChangePassword();
-            
-            // 更新首页显示
-            updateHomepageDisplay();
-            
-            // 检查管理员登录状态
-            checkAdminLogin();
-        }
-        
-        // 当页面加载完成后初始化应用
-        document.addEventListener('DOMContentLoaded', initializeApp);
+        });
     </script>
 </body>
 </html>

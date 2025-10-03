@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>艺术节报名 - 汝城县第三中学</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        secondary: '#3B82F6',
+                        success: '#10B981',
+                        danger: '#EF4444',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto { content-visibility: auto; }
+            .form-label { @apply block text-gray-700 font-medium mb-2; }
+            .form-input { @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200; }
+            .form-error { @apply text-danger text-sm mt-1 hidden; }
+            .btn-submit { @apply bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors duration-300 font-medium; }
+            .btn-cancel { @apply bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors duration-300 font-medium; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 头部导航 -->
+    <header class="bg-primary text-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <i class="fa fa-music text-2xl mr-3"></i>
+                <h1 class="text-2xl font-bold">汝城县第三中学艺术节管理系统</h1>
+            </div>
+            <a href="index.html" class="flex items-center text-white hover:text-gray-200">
+                <i class="fa fa-home mr-2"></i>
+                <span>返回首页</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- 报名标题 -->
+        <section class="text-center mb-10">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">艺术节活动报名</h2>
+            <p class="text-gray-600">请准确填写以下信息，完成报名（带<span class="text-danger">*</span>为必填项）</p>
+        </section>
+
+        <!-- 报名表单 -->
+        <section class="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8 mb-10">
+            <form id="registrationForm" class="space-y-6">
+                <!-- 基础信息 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 班级 -->
+                    <div>
+                        <label for="className" class="form-label">
+                            班级 <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" id="className" name="className" required
+                               class="form-input" placeholder="例如：高一(1)班、初二(3)班">
+                        <div class="form-error" id="classNameError">请输入正确的班级格式</div>
+                    </div>
+                    <!-- 姓名 -->
+                    <div>
+                        <label for="studentName" class="form-label">
+                            姓名 <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" id="studentName" name="studentName" required
+                               class="form-input" placeholder="请输入您的姓名">
+                        <div class="form-error" id="studentNameError">请输入姓名</div>
+                    </div>
+                    <!-- 联系方式 -->
+                    <div class="md:col-span-2">
+                        <label for="contact" class="form-label">
+                            联系方式（手机号） <span class="text-danger">*</span>
+                        </label>
+                        <input type="tel" id="contact" name="contact" required
+                               class="form-input" placeholder="请输入能联系到您的手机号">
+                        <div class="form-error" id="contactError">请输入正确的11位手机号</div>
+                    </div>
+                </div>
+
+                <!-- 报名项目 -->
+                <div>
+                    <label for="event" class="form-label">
+                        活动项目 <span class="text-danger">*</span>
+                    </label>
+                    <select id="event" name="event" required class="form-input">
+                        <option value="">请选择报名项目</option>
+                        <option value="solo_singing">独唱</option>
+                        <option value="solo_playing">独奏</option>
+                        <option value="solo_dancing">独舞</option>
+                        <option value="calligraphy">书法大赛</option>
+                        <option value="painting">绘画大赛</option>
+                        <option value="host">主持人大赛</option>
+                        <option value="comprehensive">综合大型节目</option>
+                        <option value="class_chorus">班级合唱比赛</option>
+                    </select>
+                    <div class="form-error" id="eventError">请选择报名项目</div>
+                </div>
+
+                <!-- 组别选择 -->
+                <div>
+                    <label class="form-label">
+                        组别 <span class="text-danger">*</span>
+                    </label>
+                    <div class="flex space-x-8 mt-2">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="groupType" value="professional" required
+                                   class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
+                            <span class="ml-2 text-gray-700">专业组（有相关基础）</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="groupType" value="amateur" required
+                                   class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
+                            <span class="ml-2 text-gray-700">非专业组（兴趣参与）</span>
+                        </label>
+                    </div>
+                    <div class="form-error" id="groupTypeError">请选择组别</div>
+                </div>
+
+                <!-- 备注信息 -->
+                <div>
+                    <label for="remark" class="form-label">
+                        备注信息（可选）
+                    </label>
+                    <textarea id="remark" name="remark" rows="3"
+                              class="form-input" placeholder="如有特殊需求（如伴奏格式、乐器类型等），请在此说明"></textarea>
+                </div>
+
+                <!-- 提交按钮 -->
+                <div class="flex justify-center gap-4 pt-4">
+                    <button type="button" class="btn-cancel" id="resetBtn">
+                        <i class="fa fa-refresh mr-2"></i>重置
+                    </button>
+                    <button type="submit" class="btn-submit">
+                        <i class="fa fa-paper-plane mr-2"></i>提交报名
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- 报名提示 -->
+        <section class="max-w-3xl mx-auto bg-blue-50 border-l-4 border-primary rounded-r-lg p-6">
+            <h4 class="text-lg font-semibold text-primary mb-3 flex items-center">
+                <i class="fa fa-lightbulb-o mr-2"></i>报名提示
+            </h4>
+            <ul class="space-y-2 text-gray-700 text-sm">
+                <li class="flex items-start">
+                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                    <span>提交报名后，系统将自动保存您的信息，无需重复提交同一项目</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                    <span>若需修改报名信息，请联系体艺处管理员（电话：0735-XXXXXXXX）</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                    <span>报名截止后，将通过短信通知选拔时间，请保持手机畅通</span>
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <!-- 报名成功模态框（默认隐藏） -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-8 text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa fa-check text-success text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-3">报名成功！</h3>
+            <p class="text-gray-600 mb-6">
+                您已成功报名“<span id="successEventName" class="font-medium text-primary"></span>”，请关注后续通知。
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="index.html" class="btn-cancel">
+                    <i class="fa fa-home mr-2"></i>返回首页
+                </a>
+                <button id="continueRegisterBtn" class="btn-submit">
+                    <i class="fa fa-plus mr-2"></i>继续报名其他项目
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部 -->
+    <footer class="bg-gray-800 text-white py-8 mt-auto">
+        <div class="container mx-auto px-4 text-center">
+            <p class="mb-2">汝城县第三中学体艺处 主办</p>
+            <p class="text-gray-400 text-sm">© 202X 汝城县第三中学 版权所有</p>
+        </div>
+    </footer>
+
+    <!-- JS脚本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 表单元素
+            const registrationForm = document.getElementById('registrationForm');
+            const resetBtn = document.getElementById('resetBtn');
+            const successModal = document.getElementById('successModal');
+            const continueRegisterBtn = document.getElementById('continueRegisterBtn');
+            const successEventName = document.getElementById('successEventName');
+
+            // 表单验证规则
+            const validateForm = () => {
+                let isValid = true;
+                const className = document.getElementById('className').value.trim();
+                const studentName = document.getElementById('studentName').value.trim();
+                const contact = document.getElementById('contact').value.trim();
+                const event = document.getElementById('event').value;
+                const groupType = document.querySelector('input[name="groupType"]:checked');
+
+                // 验证班级
+                if (!className || !/^[初高中][一二三四]{1,2}\([0-9]+\)班$/.test(className)) {
+                    document.getElementById('classNameError').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('classNameError').classList.add('hidden');
+                }
+
+                // 验证姓名
+                if (!studentName) {
+                    document.getElementById('studentNameError').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('studentNameError').classList.add('hidden');
+                }
+
+                // 验证手机号
+                if (!contact || !/^1[3-9]\d{9}$/.test(contact)) {
+                    document.getElementById('contactError').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('contactError').classList.add('hidden');
+                }
+
+                // 验证活动项目
+                if (!event) {
+                    document.getElementById('eventError').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('eventError').classList.add('hidden');
+                }
+
+                // 验证组别
+                if (!groupType) {
+                    document.getElementById('groupTypeError').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('groupTypeError').classList.add('hidden');
+                }
+
+                return isValid;
+            };
+
+            // 表单提交
+            registrationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (validateForm()) {
+                    // 获取选中的活动项目文本
+                    const eventSelect = document.getElementById('event');
+                    const selectedEventText = eventSelect.options[eventSelect.selectedIndex].text;
+                    successEventName.textContent = selectedEventText;
+
+                    // 显示成功模态框（实际项目中需将数据提交到MySQL数据库）
+                    successModal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+
+                    // 模拟提交数据到后端（示例代码，实际需对接PHP/Java等后端）
+                    /*
+                    const formData = new FormData(registrationForm);
+                    fetch('api/register.php', {
+                        method: 'POST',
+                        body: formData
+                    }).then(response => response.json())
+                      .then(data => {
+                          if (data.success) {
+                              successModal.classList.remove('hidden');
+                          } else {
+                              alert('报名失败，请重试！');
+                          }
+                      });
+                    */
+                }
+            });
+
+            // 重置按钮
+            resetBtn.addEventListener('click', function() {
+                registrationForm.reset();
+                // 隐藏所有错误提示
+                document.querySelectorAll('.form-error').forEach(error => {
+                    error.classList.add('hidden');
+                });
+            });
+
+            // 继续报名按钮
+            continueRegisterBtn.addEventListener('click', function() {
+                successModal.classList.add('hidden');
+                document.body.style.overflow = '';
+                // 重置表单（保留基础信息，清空项目和组别）
+                document.getElementById('event').value = '';
+                document.querySelectorAll('input[name="groupType"]').forEach(radio => {
+                    radio.checked = false;
+                });
+                document.getElementById('remark').value = '';
+            });
+
+            // 点击模态框外部关闭
+            successModal.addEventListener('click', function(e) {
+                if (e.target === successModal) {
+                    successModal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

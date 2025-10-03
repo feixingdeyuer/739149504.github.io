@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>艺术节管理 - 汝城县第三中学</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Excel处理库 -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#4080FF',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F',
+                        'gray-light': '#F2F3F5',
+                        'gray-mid': '#C9CDD4',
+                        'gray-dark': '#4E5969'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto { content-visibility: auto; }
+            .sidebar-shadow { box-shadow: 0 0 10px rgba(0, 0, 0, 0.05); }
+            .card-shadow { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); }
+            .sidebar-item { @apply flex items-center px-5 py-3.5 text-gray-dark hover:bg-primary/5 hover:text-primary transition-all duration-200 cursor-pointer; }
+            .sidebar-item.active { @apply bg-primary/10 text-primary font-medium border-l-4 border-primary; }
+            .sidebar-subitem { @apply flex items-center px-8 py-2.5 text-gray-dark text-sm hover:bg-primary/5 hover:text-primary transition-all duration-200 cursor-pointer; }
+            .sidebar-subitem.active { @apply bg-primary/10 text-primary font-medium; }
+            .btn { @apply px-4 py-2 rounded-md transition-all duration-200 font-medium; }
+            .btn-primary { @apply bg-primary text-white hover:bg-primary/90; }
+            .btn-success { @apply bg-success text-white hover:bg-success/90; }
+            .btn-danger { @apply bg-danger text-white hover:bg-danger/90; }
+            .btn-outline { @apply border border-gray-mid text-gray-dark hover:bg-gray-light; }
+        }
+    </style>
+</head>
+<body class="bg-gray-light font-inter text-gray-dark min-h-screen flex overflow-hidden">
+    <!-- 登录状态检查 -->
+    <script>
+        if (localStorage.getItem('adminLoggedIn') !== 'true') {
+            window.location.href = 'index.html';
+        }
+    </script>
+
+    <div class="flex h-screen w-full overflow-hidden">
+        <!-- 左侧三栏导航 -->
+        <aside class="w-64 bg-white sidebar-shadow z-20 flex-shrink-0 hidden md:block">
+            <!-- 系统Logo -->
+            <div class="h-16 flex items-center justify-center border-b border-gray-light">
+                <div class="flex items-center">
+                    <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-white mr-3">
+                        <i class="fa fa-music text-xl"></i>
+                    </div>
+                    <h1 class="text-lg font-bold text-gray-dark">艺术节管理系统</h1>
+                </div>
+            </div>
+
+            <!-- 导航菜单 -->
+            <nav class="h-[calc(100vh-4rem)] overflow-y-auto py-2">
+                <!-- 1. 报名管理 -->
+                <div class="mb-1">
+                    <div class="px-5 py-2 text-xs font-semibold text-gray-dark/60 uppercase tracking-wider">
+                        报名管理
+                    </div>
+                    <div class="sidebar-item group justify-between" id="toggleRegistration">
+                        <div class="flex items-center">
+                            <i class="fa fa-list-alt w-5 mr-3"></i>
+                            <span>报名数据管理</span>
+                        </div>
+                        <i class="fa fa-angle-down transition-transform duration-200 group-hover:rotate-180"></i>
+                    </div>
+                    <div id="registrationSubmenu" class="hidden">
+                        <div class="sidebar-subitem" data-view="registration-list">
+                            <i class="fa fa-table w-4 mr-3"></i>
+                            <span>报名列表</span>
+                        </div>
+                        <div class="sidebar-subitem" data-view="event-management">
+                            <i class="fa fa-calendar w-4 mr-3"></i>
+                            <span>活动项目管理</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 管理员管理 -->
+                <div class="mb-1" id="adminManagementSection">
+                    <div class="px-5 py-2 text-xs font-semibold text-gray-dark/60 uppercase tracking-wider">
+                        管理员管理
+                    </div>
+                    <div class="sidebar-item group justify-between" id="toggleAdmin">
+                        <div class="flex items-center">
+                            <i class="fa fa-users w-5 mr-3"></i>
+                            <span>管理员账户管理</span>
+                        </div>
+                        <i class="fa fa-angle-down transition-transform duration-200 group-hover:rotate-180"></i>
+                    </div>
+                    <div id="adminSubmenu" class="hidden">
+                        <div class="sidebar-subitem" data-view="admin-list">
+                            <i class="fa fa-user w-4 mr-3"></i>
+                            <span>管理员列表</span>
+                        </div>
+                        <div class="sidebar-subitem" data-view="change-password">
+                            <i class="fa fa-key w-4 mr-3"></i>
+                            <span>修改密码</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. 主页管理 -->
+                <div class="mb-1">
+                    <div class="px-5 py-2 text-xs font-semibold text-gray-dark/60 uppercase tracking-wider">
+                        主页管理
+                    </div>
+                    <div class="sidebar-item" data-view="homepage-management">
+                        <i class="fa fa-sliders w-5 mr-3"></i>
+                        <span>首页内容设置</span>
+                    </div>
+                    <div class="sidebar-item" data-view="system-settings">
+                        <i class="fa fa-cog w-5 mr-3"></i>
+                        <span>系统参数设置</span>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 右侧主内容区 -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- 顶部导航 -->
+            <header class="h-16 bg-white border-b border-gray-light flex items-center justify-between px-6 z-10">
+                <div class="flex items-center">
+                    <button id="mobileMenuBtn" class="md:hidden mr-4 text-gray-dark">
+                        <i class="fa fa-bars text-xl"></i>
+                    </button>
+                    <h2 class="text-lg font-semibold" id="pageTitle">控制面板</h2>
+                </div>
+                <div class="flex items-center">
+                    <div class="relative mr-4">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                            <i class="fa fa-search text-gray-mid"></i>
+                        </span>
+                        <input type="text" placeholder="全局搜索..." class="pl-10 pr-4 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm w-64">
+                    </div>
+                    <div class="flex items-center">
+                        <span id="adminName" class="mr-3 hidden sm:inline-block">管理员</span>
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary cursor-pointer hover:bg-primary/20 transition-colors">
+                            <i class="fa fa-user"></i>
+                        </div>
+                        <button id="logoutBtn" class="ml-4 text-gray-dark hover:text-danger transition-colors">
+                            <i class="fa fa-sign-out"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 内容区域 -->
+            <main class="flex-1 overflow-y-auto p-6 bg-gray-light">
+                <!-- 1. 控制面板视图 -->
+                <div id="dashboard-view" class="view active">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <div class="bg-white rounded-lg p-5 card-shadow">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-gray-dark/60 text-sm">总报名人数</p>
+                                    <h3 class="text-2xl font-bold mt-2" id="totalRegistrations">128</h3>
+                                    <p class="text-success text-xs mt-3 flex items-center">
+                                        <i class="fa fa-arrow-up mr-1"></i> 较昨日 +12
+                                    </p>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                    <i class="fa fa-users"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg p-5 card-shadow">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-gray-dark/60 text-sm">活动项目数</p>
+                                    <h3 class="text-2xl font-bold mt-2" id="totalEvents">8</h3>
+                                    <p class="text-gray-dark/60 text-xs mt-3 flex items-center">
+                                        <i class="fa fa-check mr-1"></i> 全部启用
+                                    </p>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center text-success">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg p-5 card-shadow">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-gray-dark/60 text-sm">管理员数</p>
+                                    <h3 class="text-2xl font-bold mt-2" id="totalAdmins">3</h3>
+                                    <p class="text-gray-dark/60 text-xs mt-3 flex items-center">
+                                        <i class="fa fa-user-circle mr-1"></i> 1位超级管理员
+                                    </p>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+                                    <i class="fa fa-user-secret"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg p-5 card-shadow">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-gray-dark/60 text-sm">报名截止倒计时</p>
+                                    <h3 class="text-2xl font-bold mt-2" id="deadlineCount">7天</h3>
+                                    <p class="text-warning text-xs mt-3 flex items-center">
+                                        <i class="fa fa-clock-o mr-1"></i> 即将截止
+                                    </p>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-warning/10 flex items-center justify-center text-warning">
+                                    <i class="fa fa-hourglass-half"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-white rounded-lg p-5 card-shadow">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="font-semibold text-gray-dark">各项目报名人数统计</h3>
+                                <div class="text-sm text-gray-dark/60">近7天</div>
+                            </div>
+                            <div class="h-64 flex items-center justify-center border border-dashed border-gray-mid/30 rounded">
+                                <div class="text-gray-dark/40">
+                                    <i class="fa fa-bar-chart text-4xl mb-2 block text-center"></i>
+                                    <p>项目报名统计图表</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg p-5 card-shadow">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="font-semibold text-gray-dark">最近报名</h3>
+                                <a href="#" class="text-primary text-sm hover:underline" data-view="registration-list">查看全部</a>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center p-3 hover:bg-gray-light rounded-md transition-colors">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-3">
+                                        <i class="fa fa-user"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium">张三</p>
+                                        <p class="text-xs text-gray-dark/60">高一(1)班 · 独唱</p>
+                                    </div>
+                                    <span class="text-xs text-gray-dark/60">10分钟前</span>
+                                </div>
+                                <div class="flex items-center p-3 hover:bg-gray-light rounded-md transition-colors">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-3">
+                                        <i class="fa fa-user"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium">李四</p>
+                                        <p class="text-xs text-gray-dark/60">高二(3)班 · 书法大赛</p>
+                                    </div>
+                                    <span class="text-xs text-gray-dark/60">1小时前</span>
+                                </div>
+                                <div class="flex items-center p-3 hover:bg-gray-light rounded-md transition-colors">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-3">
+                                        <i class="fa fa-user"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium">王五</p>
+                                        <p class="text-xs text-gray-dark/60">初三(2)班 · 独舞</p>
+                                    </div>
+                                    <span class="text-xs text-gray-dark/60">2小时前</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 报名列表视图 -->
+                <div id="registration-list-view" class="view hidden">
+                    <div class="bg-white rounded-lg p-5 card-shadow mb-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                            <h3 class="font-semibold text-gray-dark text-lg mb-4 md:mb-0">报名列表</h3>
+                            <div class="flex flex-wrap gap-3">
+                                <div class="relative">
+                                    <input type="text" placeholder="搜索姓名/班级..." class="pl-10 pr-4 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm w-full md:w-64">
+                                    <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-mid"></i>
+                                </div>
+                                <button class="btn btn-success" id="addRegistrationBtn">
+                                    <i class="fa fa-plus mr-1"></i> 新增报名
+                                </button>
+                                <button class="btn btn-outline" id="exportAllBtn">
+                                    <i class="fa fa-download mr-1"></i> 导出
+                                </button>
+                                <button class="btn btn-danger" id="deleteSelectedBtn">
+                                    <i class="fa fa-trash mr-1"></i> 批量删除
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 筛选区 -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-light rounded-md">
+                            <div>
+                                <label class="block text-sm text-gray-dark/80 mb-1.5">活动项目</label>
+                                <select class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                                    <option value="">所有项目</option>
+                                    <option value="solo_singing">独唱</option>
+                                    <option value="solo_playing">独奏</option>
+                                    <option value="solo_dancing">独舞</option>
+                                    <option value="calligraphy">书法大赛</option>
+                                    <option value="painting">绘画大赛</option>
+                                    <option value="host">主持人大赛</option>
+                                    <option value="comprehensive">综合大型节目</option>
+                                    <option value="class_chorus">班级合唱比赛</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-dark/80 mb-1.5">组别</label>
+                                <select class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                                    <option value="">所有组别</option>
+                                    <option value="professional">专业组</option>
+                                    <option value="amateur">非专业组</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end">
+                                <button class="btn btn-primary w-full">
+                                    <i class="fa fa-filter mr-1"></i> 筛选
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 导入区域 -->
+                        <div class="mb-6">
+                            <label class="block text-sm text-gray-dark/80 mb-1.5">批量导入</label>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <label for="importFile" class="btn btn-outline cursor-pointer">
+                                    <i class="fa fa-upload mr-1"></i> 选择Excel文件
+                                </label>
+                                <input type="file" id="importFile" accept=".xlsx,.xls" class="hidden">
+                                <button class="btn btn-primary">
+                                    <i class="fa fa-check mr-1"></i> 开始导入
+                                </button>
+                                <span class="text-sm text-gray-dark/60" id="importFileName">未选择文件</span>
+                            </div>
+                        </div>
+
+                        <!-- 表格区域 -->
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-light">
+                                <thead>
+                                    <tr class="bg-gray-light">
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider w-12">
+                                            <input type="checkbox" id="selectAll">
+                                        </th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">ID</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">班级</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">姓名</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">联系方式</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">活动项目</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">组别</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">报名时间</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-light">
+                                    <tr class="hover:bg-gray-light/50 transition-colors">
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <input type="checkbox" class="registration-checkbox">
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">1</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">高一(1)班</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">张三</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">13800138000</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">独唱</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs rounded-full bg-primary/10 text-primary">专业组</span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-dark/60">2023-10-01 09:30</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                            <button class="text-primary hover:text-primary/80 mr-3 edit-registration">
+                                                <i class="fa fa-pencil"></i>
+                                            </button>
+                                            <button class="text-danger hover:text-danger/80 delete-registration">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-light/50 transition-colors">
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <input type="checkbox" class="registration-checkbox">
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">2</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">高二(3)班</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">李四</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">13900139000</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">书法大赛</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs rounded-full bg-success/10 text-success">非专业组</span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-dark/60">2023-10-01 10:15</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                            <button class="text-primary hover:text-primary/80 mr-3 edit-registration">
+                                                <i class="fa fa-pencil"></i>
+                                            </button>
+                                            <button class="text-danger hover:text-danger/80 delete-registration">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-light/50 transition-colors">
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <input type="checkbox" class="registration-checkbox">
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">3</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">初三(2)班</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">王五</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">13700137000</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">独舞</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs rounded-full bg-primary/10 text-primary">专业组</span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-dark/60">2023-10-01 14:20</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                            <button class="text-primary hover:text-primary/80 mr-3 edit-registration">
+                                                <i class="fa fa-pencil"></i>
+                                            </button>
+                                            <button class="text-danger hover:text-danger/80 delete-registration">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 分页 -->
+                        <div class="flex items-center justify-between mt-6">
+                            <div class="text-sm text-gray-dark/60">
+                                显示 1 至 3 条，共 <span class="font-medium text-gray-dark">128</span> 条记录
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-mid text-gray-dark/60 hover:bg-gray-light disabled:opacity-50" disabled>
+                                    <i class="fa fa-angle-left"></i>
+                                </button>
+                                <button class="w-8 h-8 flex items-center justify-center rounded border border-primary bg-primary text-white">1</button>
+                                <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-mid hover:bg-gray-light">2</button>
+                                <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-mid hover:bg-gray-light">3</button>
+                                <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-mid text-gray-dark hover:bg-gray-light">
+                                    <i class="fa fa-angle-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. 活动项目管理视图 -->
+                <div id="event-management-view" class="view hidden">
+                    <div class="bg-white rounded-lg p-5 card-shadow">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-semibold text-gray-dark text-lg">活动项目管理</h3>
+                            <button class="btn btn-success" id="addEventBtn">
+                                <i class="fa fa-plus mr-1"></i> 添加活动项目
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-light">
+                                <thead>
+                                    <tr class="bg-gray-light">
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">ID</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">活动项目名称</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">创建时间</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">报名人数</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">状态</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-light">
+                                    <tr class="hover:bg-gray-light/50 transition-colors">
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">1</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">独唱</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-dark/60">2023-09-15</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">28</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs rounded-full bg-success/10 text-success">启用</span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                            <button class="text-primary hover:text-primary/80 mr-3 edit-event">
+                                                <i class="fa fa-pencil"></i>
+                                            </button>
+                                            <button class="text-danger hover:text-danger/80 delete-event">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-light/50 transition-colors">
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">2</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">独奏</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-dark/60">2023-09-15</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">15</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs rounded-full bg-success/10 text-success">启用</span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                            <button class="text-primary hover:text-primary/80 mr-3 edit-event">
+                                                <i class="fa fa-pencil"></i>
+                                            </button>
+                                            <button class="text-danger hover:text-danger/80 delete-event">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-light/50 transition-colors">
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">3</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">独舞</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-dark/60">2023-09-15</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">22</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs rounded-full bg-success/10 text-success">启用</span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                            <button class="text-primary hover:text-primary/80 mr-3 edit-event">
+                                                <i class="fa fa-pencil"></i>
+                                            </button>
+                                            <button class="text-danger hover:text-danger/80 delete-event">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. 管理员列表视图 -->
+                <div id="admin-list-view" class="view hidden">
+                    <div class="bg-white rounded-lg p-5 card-shadow">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-semibold text-gray-dark text-lg">管理员管理</h3>
+                            <button class="btn btn-success" id="addAdminBtn">
+                                <i class="fa fa-plus mr-1"></i> 添加管理员
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-light">
+                                <thead>
+                                    <tr class="bg-gray-light">
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">ID</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">姓名</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">账号（手机号）</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">角色</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">创建时间</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-dark/60 uppercase tracking-wider">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-light">
+                                    <tr class="hover:bg-gray-light/50 transition-colors">
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">1</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">超级管理员</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">15197550021</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs rounded-full bg-secondary/10 text-secondary">超级管理员</span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-dark/60">2023-09-01</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-mid">
+                                            <i class="fa fa-lock mr-1"></i> 不可操作
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-light/50 transition-colors">
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">2</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">张三</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">13800138000</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs rounded-full bg-primary/10 text-primary">管理员</span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-dark/60">2023-09-10</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                            <button class="text-primary hover:text-primary/80 mr-3 edit-admin">
+                                                <i class="fa fa-pencil"></i>
+                                            </button>
+                                            <button class="text-warning hover:text-warning/80 mr-3 reset-admin-password">
+                                                <i class="fa fa-refresh"></i>
+                                            </button>
+                                            <button class="text-danger hover:text-danger/80 delete-admin">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. 修改密码视图 -->
+                <div id="change-password-view" class="view hidden">
+                    <div class="bg-white rounded-lg p-5 card-shadow max-w-md mx-auto">
+                        <h3 class="font-semibold text-gray-dark text-lg mb-6">修改密码</h3>
+                        
+                        <form id="changePasswordForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm text-gray-dark/80 mb-1.5">当前密码</label>
+                                <input type="password" class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-dark/80 mb-1.5">新密码</label>
+                                <input type="password" class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                                <p class="text-xs text-gray-dark/60 mt-1">密码长度不能少于6位</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-dark/80 mb-1.5">确认新密码</label>
+                                <input type="password" class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                            </div>
+                            <div class="pt-4">
+                                <button type="submit" class="btn btn-primary w-full">
+                                    <i class="fa fa-save mr-1"></i> 保存新密码
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 6. 首页内容设置视图 -->
+                <div id="homepage-management-view" class="view hidden">
+                    <div class="bg-white rounded-lg p-5 card-shadow">
+                        <h3 class="font-semibold text-gray-dark text-lg mb-6">首页内容设置</h3>
+                        
+                        <form id="homepageForm" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm text-gray-dark/80 mb-1.5">系统标题</label>
+                                    <input type="text" value="汝城县第三中学艺术节管理系统" class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-dark/80 mb-1.5">艺术节标题</label>
+                                    <input type="text" value="汝城县第三中学第XX届艺术节" class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-dark/80 mb-1.5">报名截止时间</label>
+                                    <input type="date" class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-dark/80 mb-1.5">联系电话</label>
+                                    <input type="text" value="0735-XXXXXXXX" class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm text-gray-dark/80 mb-1.5">首页欢迎词</label>
+                                <textarea rows="3" class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">展示艺术风采，绽放青春活力，欢迎全体同学积极报名参与！</textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm text-gray-dark/80 mb-1.5">活动须知</label>
+                                <textarea rows="5" class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">1. 每位同学可报名1-2个活动项目，需准确填写个人信息；
+2. 活动项目分“专业组”和“非专业组”，请根据自身情况选择；
+3. 报名后请关注系统通知，按时参加选拔与比赛；
+4. 咨询电话：0735-XXXXXXXX（体艺处）。</textarea>
+                            </div>
+                            
+                            <div class="pt-4 flex justify-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-save mr-1"></i> 保存设置
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 7. 系统参数设置视图 -->
+                <div id="system-settings-view" class="view hidden">
+                    <div class="bg-white rounded-lg p-5 card-shadow">
+                        <h3 class="font-semibold text-gray-dark text-lg mb-6">系统参数设置</h3>
+                        
+                        <form id="systemSettingsForm" class="space-y-6">
+                            <div class="p-4 bg-gray-light rounded-md">
+                                <h4 class="font-medium text-gray-dark mb-4">报名限制设置</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm text-gray-dark/80 mb-1.5">每人最大报名项目数</label>
+                                        <input type="number" min="1" max="5" value="2" class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-dark/80 mb-1.5">报名功能状态</label>
+                                        <select class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                                            <option value="1">开启报名</option>
+                                            <option value="0">关闭报名</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="pt-4 flex justify-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-save mr-1"></i> 保存设置
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 新增/编辑报名模态框 -->
+    <div id="registrationModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg card-shadow w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-5 border-b border-gray-light flex justify-between items-center">
+                <h3 class="font-semibold text-gray-dark text-lg" id="registrationModalTitle">新增报名</h3>
+                <button id="closeRegistrationModal" class="text-gray-mid hover:text-gray-dark">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="p-5">
+                <form id="registrationFormAdmin" class="space-y-4">
+                    <input type="hidden" id="registrationId">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm text-gray-dark/80 mb-1.5">
+                                班级 <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" placeholder="例如：高一(1)班" class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-dark/80 mb-1.5">
+                                姓名 <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" placeholder="请输入姓名" class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm text-gray-dark/80 mb-1.5">
+                                联系方式 <span class="text-danger">*</span>
+                            </label>
+                            <input type="tel" placeholder="请输入手机号码" class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-dark/80 mb-1.5">
+                                活动项目 <span class="text-danger">*</span>
+                            </label>
+                            <select class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                                <option value="">请选择活动项目</option>
+                                <option value="solo_singing">独唱</option>
+                                <option value="solo_playing">独奏</option>
+                                <option value="solo_dancing">独舞</option>
+                                <option value="calligraphy">书法大赛</option>
+                                <option value="painting">绘画大赛</option>
+                                <option value="host">主持人大赛</option>
+                                <option value="comprehensive">综合大型节目</option>
+                                <option value="class_chorus">班级合唱比赛</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-dark/80 mb-1.5">
+                                组别 <span class="text-danger">*</span>
+                            </label>
+                            <div class="flex space-x-4">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="groupType" value="professional" class="text-primary focus:ring-primary/30">
+                                    <span class="ml-2 text-sm">专业组</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="groupType" value="amateur" class="text-primary focus:ring-primary/30">
+                                    <span class="ml-2 text-sm">非专业组</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm text-gray-dark/80 mb-1.5">备注信息</label>
+                            <textarea rows="3" placeholder="如有特殊需求，请在此说明" class="w-full px-3 py-2 rounded-md border border-gray-mid focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="p-5 border-t border-gray-light flex justify-end gap-3">
+                <button id="cancelRegistration" class="btn btn-outline">取消</button>
+                <button id="saveRegistration" class="btn btn-primary">
+                    <i class="fa fa-save mr-1"></i> 保存
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认操作模态框 -->
+    <div id="confirmModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg card-shadow w-full max-w-md p-5 text-center">
+            <div class="w-16 h-16 bg-warning/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa fa-exclamation-triangle text-warning text-2xl"></i>
+            </div>
+            <h3 class="font-semibold text-gray-dark text-lg mb-2" id="confirmTitle">确认删除？</h3>
+            <p class="text-gray-dark/60 mb-6" id="confirmMessage">您确定要删除这条记录吗？此操作不可撤销。</p>
+            <div class="flex justify-center gap-3">
+                <button id="cancelConfirm" class="btn btn-outline">取消</button>
+                <button id="confirmAction" class="btn btn-danger">
+                    <i class="fa fa-trash mr-1"></i> 确认删除
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示消息模态框 -->
+    <div id="messageModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg card-shadow w-full max-w-md p-5 text-center">
+            <div id="messageIconContainer" class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i id="messageIcon" class="fa fa-check text-success text-2xl"></i>
+            </div>
+            <h3 class="font-semibold text-gray-dark text-lg mb-2" id="messageTitle">操作成功</h3>
+            <p class="text-gray-dark/60 mb-6" id="messageContent">您的操作已成功完成。</p>
+            <button id="closeMessageModal" class="btn btn-primary w-full">确定</button>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentView = 'dashboard-view';
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 显示管理员姓名
+            const adminName = localStorage.getItem('adminName') || '管理员';
+            document.getElementById('adminName').textContent = adminName;
+            
+            // 检查是否为超级管理员，控制管理员管理权限
+            const isSuperAdmin = localStorage.getItem('isSuperAdmin') === 'true';
+            if (!isSuperAdmin) {
+                document.getElementById('adminManagementSection').style.display = 'none';
+            }
+            
+            // 移动端菜单切换
+            document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+                const sidebar = document.querySelector('aside');
+                sidebar.classList.toggle('hidden');
+                sidebar.classList.toggle('fixed');
+                sidebar.classList.toggle('inset-y-0');
+                sidebar.classList.toggle('left-0');
+                sidebar.classList.toggle('z-50');
+            });
+            
+            // 侧边栏子菜单展开/折叠
+            document.getElementById('toggleRegistration').addEventListener('click', function() {
+                const submenu = document.getElementById('registrationSubmenu');
+                submenu.classList.toggle('hidden');
+            });
+            
+            document.getElementById('toggleAdmin').addEventListener('click', function() {
+                const submenu = document.getElementById('adminSubmenu');
+                submenu.classList.toggle('hidden');
+            });
+            
+            // 侧边栏菜单项点击事件
+            document.querySelectorAll('[data-view]').forEach(item => {
+                item.addEventListener('click', function() {
+                    const viewId = this.getAttribute('data-view') + '-view';
+                    switchView(viewId);
+                    
+                    // 更新页面标题
+                    const titleText = this.textContent.trim();
+                    document.getElementById('pageTitle').textContent = titleText;
+                    
+                    // 在移动设备上点击菜单后关闭侧边栏
+                    if (window.innerWidth < 768) {
+                        const sidebar = document.querySelector('aside');
+                        sidebar.classList.add('hidden');
+                    }
+                });
+            });
+            
+            // 退出登录
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                localStorage.removeItem('adminLoggedIn');
+                localStorage.removeItem('isSuperAdmin');
+                localStorage.removeItem('adminName');
+                window.location.href = 'index.html';
+            });
+            
+            // 导入文件选择
+            document.getElementById('importFile').addEventListener('change', function(e) {
+                const fileName = e.target.files[0]?.name || '未选择文件';
+                document.getElementById('importFileName').textContent = fileName;
+            });
+            
+            // 模态框控制
+            document.getElementById('addRegistrationBtn').addEventListener('click', function() {
+                document.getElementById('registrationModal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            document.getElementById('closeRegistrationModal').addEventListener('click', closeRegistrationModal);
+            document.getElementById('cancelRegistration').addEventListener('click', closeRegistrationModal);
+            
+            // 关闭所有模态框的通用方法
+            function closeRegistrationModal() {
+                document.getElementById('registrationModal').classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+            
+            // 显示消息提示
+            function showMessage(content, title = '提示', type = 'success') {
+                document.getElementById('messageTitle').textContent = title;
+                document.getElementById('messageContent').textContent = content;
+                
+                const iconContainer = document.getElementById('messageIconContainer');
+                const icon = document.getElementById('messageIcon');
+                
+                if (type === 'error') {
+                    iconContainer.className = 'w-16 h-16 bg-danger/10 rounded-full flex items-center justify-center mx-auto mb-4';
+                    icon.className = 'fa fa-times text-danger text-2xl';
+                } else {
+                    iconContainer.className = 'w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4';
+                    icon.className = 'fa fa-check text-success text-2xl';
+                }
+                
+                document.getElementById('messageModal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            // 关闭消息模态框
+            document.getElementById('closeMessageModal').addEventListener('click', function() {
+                document.getElementById('messageModal').classList.add('hidden');
+                document.body.style.overflow = '';
+            });
+            
+            // 切换视图的方法
+            function switchView(viewId) {
+                // 隐藏当前视图
+                document.getElementById(currentView).classList.add('hidden');
+                document.getElementById(currentView).classList.remove('active');
+                
+                // 显示新视图
+                document.getElementById(viewId).classList.remove('hidden');
+                document.getElementById(viewId).classList.add('active');
+                
+                // 更新当前视图
+                currentView = viewId;
+                
+                // 移除所有菜单项的活动状态
+                document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // 为当前视图对应的菜单项添加活动状态
+                document.querySelector(`[data-view="${viewId.replace('-view', '')}"]`).classList.add('active');
+            }
+            
+            // 保存按钮点击事件
+            document.getElementById('saveRegistration').addEventListener('click', function() {
+                closeRegistrationModal();
+                showMessage('报名信息已成功保存', '保存成功');
+            });
+        });
+    </script>
+</body>
+</html>
+    
